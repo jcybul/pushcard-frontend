@@ -1,40 +1,57 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { useAuth } from '@/contexts/AuthContext'
 import { AuthForm } from '@/components/AuthForm'
+import { useAuth } from '@/contexts/AuthContext'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 export default function LoginPage() {
-  const [loading, setLoading] = useState(false)
-  const { signIn } = useAuth()
+  const { signIn, user, loading, userRole } = useAuth()
   const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false)
 
-  const handleSignIn = async (email: string, password: string) => {
-    setLoading(true)
-    try {
-      const { error } = await signIn(email, password)
-      if (error) {
-        throw new Error(error.message)
+  useEffect(() => {
+    if (!loading && user) {
+      if (userRole === 'merchant') {
+        router.push('/merchant')
+      } else {
+        router.push('/dashboard')
       }
-      router.push('/dashboard')
+    }
+  }, [user, loading, userRole, router])
+
+  const handleLogin = async (email: string, password: string) => {
+    setIsLoading(true)
+    try {
+      await signIn(email, password)
     } catch (error) {
       throw error
     } finally {
-      setLoading(false)
+      setIsLoading(false)
     }
   }
 
   return (
-    <AuthForm
-      title="Sign in to your account"
-      subtitle="Welcome back! Please sign in to continue."
-      onSubmit={handleSignIn}
-      submitText="Sign in"
-      linkText="Don't have an account?"
-      linkHref="/signup"
-      linkLabel="Sign up"
-      loading={loading}
-    />
+    <div className="min-h-screen flex flex-col items-center justify-center px-[var(--spacing-md)] py-12" style={{ background: 'linear-gradient(155deg, rgba(30, 123, 60, 0.59) 0%, rgba(200, 217, 72, 0.7) 100%)' }}>
+      {/* Logo */}
+      <div className="mb-8">
+        <img 
+          src="/cashback-logo.png" 
+          alt="Cashback Panama" 
+          className="h-16 w-auto drop-shadow-lg"
+        />
+      </div>
+      
+      <AuthForm
+        title="Welcome back"
+        subtitle="Sign in to your account"
+        onSubmit={handleLogin}
+        submitText="Sign in"
+        linkText="Don't have an account?"
+        linkHref="/signup"
+        linkLabel="Sign up"
+        loading={isLoading}
+      />
+    </div>
   )
 }

@@ -1,16 +1,10 @@
 'use client'
 
 import { useState } from 'react'
+import { PunchCard } from '@/types/api'
 
 interface WalletPassProps {
-  punchCardData: {
-    id: string
-    name: string
-    businessName: string
-    punches: number
-    maxPunches: number
-    description?: string
-  }
+  punchCardData: PunchCard
   onClose: () => void
 }
 
@@ -28,9 +22,9 @@ export function WalletPass({ punchCardData, onClose }: WalletPassProps) {
         passTypeIdentifier: 'pass.com.pushcard.punchcard',
         serialNumber: punchCardData.id,
         teamIdentifier: 'PUSHCARD123',
-        organizationName: punchCardData.businessName,
-        description: punchCardData.description || 'Digital Punch Card',
-        logoText: punchCardData.businessName,
+        organizationName: punchCardData.merchant_name,
+        description: punchCardData.reward_description || 'Digital Punch Card',
+        logoText: punchCardData.merchant_name,
         foregroundColor: 'rgb(255, 255, 255)',
         backgroundColor: 'rgb(59, 130, 246)',
         storeCard: {
@@ -38,28 +32,28 @@ export function WalletPass({ punchCardData, onClose }: WalletPassProps) {
             {
               key: 'business',
               label: 'Business',
-              value: punchCardData.businessName
+              value: punchCardData.merchant_name
             }
           ],
           secondaryFields: [
             {
               key: 'card',
               label: 'Card',
-              value: punchCardData.name
+              value: punchCardData.program_name
             }
           ],
           auxiliaryFields: [
             {
               key: 'punches',
               label: 'Punches',
-              value: `${punchCardData.punches}/${punchCardData.maxPunches}`
+              value: `${punchCardData.current_punches}/${punchCardData.punches_required}`
             }
           ],
           backFields: [
             {
               key: 'description',
               label: 'Description',
-              value: punchCardData.description || 'Digital punch card for rewards'
+              value: punchCardData.reward_description || 'Digital punch card for rewards'
             }
           ]
         }
@@ -73,7 +67,7 @@ export function WalletPass({ punchCardData, onClose }: WalletPassProps) {
       // Create download link
       const link = document.createElement('a')
       link.href = url
-      link.download = `${punchCardData.name}.pkpass`
+      link.download = `${punchCardData.program_name}.pkpass`
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
@@ -123,11 +117,11 @@ export function WalletPass({ punchCardData, onClose }: WalletPassProps) {
 
         <div className="mb-6">
           <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
-            <h4 className="font-semibold text-indigo-900 mb-2">{punchCardData.businessName}</h4>
-            <p className="text-indigo-700 text-sm mb-2">{punchCardData.name}</p>
+            <h4 className="font-semibold text-indigo-900 mb-2">{punchCardData.merchant_name}</h4>
+            <p className="text-indigo-700 text-sm mb-2">{punchCardData.program_name}</p>
             <div className="flex justify-between text-sm text-indigo-600">
-              <span>Punches: {punchCardData.punches}/{punchCardData.maxPunches}</span>
-              <span>{Math.round((punchCardData.punches / punchCardData.maxPunches) * 100)}% Complete</span>
+              <span>Punches: {punchCardData.current_punches}/{punchCardData.punches_required}</span>
+              <span>{Math.round((punchCardData.current_punches / punchCardData.punches_required) * 100)}% Complete</span>
             </div>
           </div>
         </div>

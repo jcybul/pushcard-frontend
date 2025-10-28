@@ -14,8 +14,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PushCard - Digital Punchcard Business",
-  description: "Manage your digital punchcards with ease",
+  title: "Cashback Panama - Digital Loyalty Cards",
+  description: "Manage your digital loyalty cards with ease",
+  icons: {
+    icon: '/cashback-logo.png',
+    apple: '/cashback-logo.png',
+  },
 };
 
 export default function RootLayout({

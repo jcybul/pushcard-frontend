@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import jsQR from 'jsqr'
 
 interface QRScannerProps {
   onScan: (result: string) => void
@@ -11,13 +12,16 @@ interface QRScannerProps {
 export function QRScanner({ onScan, onError, onClose }: QRScannerProps) {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null)
   const [error, setError] = useState<string>('')
+  const [isScanning, setIsScanning] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const streamRef = useRef<MediaStream | null>(null)
+  const scanningRef = useRef<boolean>(false)
 
   useEffect(() => {
     startCamera()
     return () => {
+      scanningRef.current = false
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop())
       }
@@ -35,6 +39,9 @@ export function QRScanner({ onScan, onError, onClose }: QRScannerProps) {
         streamRef.current = stream
         setHasPermission(true)
         setError('')
+        // Start continuous scanning
+        scanningRef.current = true
+        requestAnimationFrame(tick)
       }
     } catch (err) {
       console.error('Error accessing camera:', err)
@@ -44,33 +51,32 @@ export function QRScanner({ onScan, onError, onClose }: QRScannerProps) {
     }
   }
 
-  const captureFrame = () => {
-    if (!videoRef.current || !canvasRef.current) return
-
-    const video = videoRef.current
-    const canvas = canvasRef.current
-    const ctx = canvas.getContext('2d')
-
-    if (!ctx) return
-
-    canvas.width = video.videoWidth
-    canvas.height = video.videoHeight
-    ctx.drawImage(video, 0, 0)
-
-    // Simple QR code detection (in a real app, you'd use a proper QR library)
-    // For now, we'll simulate scanning
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+  const tick = () => {
+    if (!scanningRef.current) return
     
-    // This is a placeholder - in production you'd use a proper QR code library
-    // like jsQR or @zxing/library
-    setTimeout(() => {
-      const mockQRResult = `pushcard://punch/${Date.now()}`
-      onScan(mockQRResult)
-    }, 1000)
-  }
+    if (videoRef.current && canvasRef.current && videoRef.current.readyState === videoRef.current.HAVE_ENOUGH_DATA) {
+      const video = videoRef.current
+      const canvas = canvasRef.current
+      const ctx = canvas.getContext('2d')
 
-  const handleScanClick = () => {
-    captureFrame()
+      if (!ctx) return
+
+      canvas.width = video.videoWidth
+      canvas.height = video.videoHeight
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+      
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+      const code = jsQR(imageData.data, imageData.width, imageData.height)
+
+      if (code && code.data) {
+        console.log('QR Code detected:', code.data)
+        scanningRef.current = false // Stop scanning
+        onScan(code.data) // Return the QR code content (just the card ID)
+        return
+      }
+    }
+    
+    requestAnimationFrame(tick)
   }
 
   if (hasPermission === false) {
@@ -127,21 +133,19 @@ export function QRScanner({ onScan, onError, onClose }: QRScannerProps) {
             </div>
           </div>
         </div>
-
         <canvas ref={canvasRef} className="hidden" />
 
-        <div className="text-center">
-          <p className="text-sm text-gray-600 mb-4">
-            Position the QR code within the frame
-          </p>
-          <button
-            onClick={handleScanClick}
-            className="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700"
-          >
-            Scan QR Code
-          </button>
-        </div>
-      </div>
-    </div>
-  )
+<div className="text-center">
+  <p className="text-sm text-gray-600 mb-2">
+    Position the QR code within the frame
+  </p>
+  <p className="text-sm text-indigo-600 font-medium animate-pulse">
+    🔍 Scanning automatically...
+  </p>
+</div>
+</div>
+</div>
+)
 }
+
+       

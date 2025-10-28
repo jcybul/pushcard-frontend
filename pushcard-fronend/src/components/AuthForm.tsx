@@ -2,6 +2,9 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 
 interface AuthFormProps {
   title: string
@@ -56,131 +59,125 @@ export function AuthForm({
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            {title}
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            {subtitle}
-          </p>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm -space-y-px">
+    <div className="w-full max-w-md">
+      <Card className="shadow-card-hover">
+        <CardHeader className="text-center">
+          <CardTitle className="text-h1">{title}</CardTitle>
+          <CardDescription className="text-base">{subtitle}</CardDescription>
+        </CardHeader>
+        
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-[var(--spacing-md)]">
             {showAdditionalFields && (
               <>
                 <div>
-                  <label htmlFor="first-name" className="sr-only">
+                  <label htmlFor="first-name" className="block text-sm font-medium mb-1">
                     First Name
                   </label>
-                  <input
+                  <Input
                     id="first-name"
                     name="firstName"
                     type="text"
                     autoComplete="given-name"
                     required={showAdditionalFields}
-                    className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                    placeholder="First Name"
+                    placeholder="John"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
                   />
                 </div>
+                
                 <div>
-                  <label htmlFor="last-name" className="sr-only">
+                  <label htmlFor="last-name" className="block text-sm font-medium mb-1">
                     Last Name
                   </label>
-                  <input
+                  <Input
                     id="last-name"
                     name="lastName"
                     type="text"
                     autoComplete="family-name"
                     required={showAdditionalFields}
-                    className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                    placeholder="Last Name"
+                    placeholder="Doe"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
                   />
                 </div>
+                
                 <div>
-                  <label htmlFor="birthdate" className="sr-only">
+                  <label htmlFor="birthdate" className="block text-sm font-medium mb-1">
                     Birth Date
                   </label>
-                  <input
+                  <Input
                     id="birthdate"
                     name="birthdate"
                     type="date"
                     required={showAdditionalFields}
-                    className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                     value={birthdate}
                     onChange={(e) => setBirthdate(e.target.value)}
                   />
                 </div>
               </>
             )}
+            
             <div>
-              <label htmlFor="email-address" className="sr-only">
+              <label htmlFor="email-address" className="block text-sm font-medium mb-1">
                 Email address
               </label>
-              <input
+              <Input
                 id="email-address"
                 name="email"
                 type="email"
                 autoComplete="email"
                 required
-                className={`appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm ${
-                  showAdditionalFields ? '' : 'rounded-t-md'
-                }`}
-                placeholder="Email address"
+                placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
+            
             <div>
-              <label htmlFor="password" className="sr-only">
+              <label htmlFor="password" className="block text-sm font-medium mb-1">
                 Password
               </label>
-              <input
+              <Input
                 id="password"
                 name="password"
                 type="password"
                 autoComplete={showAdditionalFields ? "new-password" : "current-password"}
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
+                placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
-          </div>
 
-          {error && (
-            <div className="rounded-md bg-red-50 p-4">
-              <div className="text-sm text-red-700">{error}</div>
-            </div>
-          )}
+            {error && (
+              <div className="rounded-[var(--radius-medium)] bg-[var(--color-error)] text-white p-[var(--spacing-sm)] text-sm animate-shake">
+                {error}
+              </div>
+            )}
 
-          <div>
-            <button
+            <Button
               type="submit"
+              variant="gradient"
+              size="lg"
               disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full"
             >
               {loading ? 'Loading...' : submitText}
-            </button>
-          </div>
+            </Button>
 
-          <div className="text-center">
-            <span className="text-sm text-gray-600">{linkText} </span>
-            <Link
-              href={linkHref}
-              className="font-medium text-indigo-600 hover:text-indigo-500"
-            >
-              {linkLabel}
-            </Link>
-          </div>
-        </form>
-      </div>
+            <div className="text-center text-sm">
+              <span className="text-[var(--color-text-secondary)]">{linkText} </span>
+              <Link
+                href={linkHref}
+                className="font-medium text-gradient-rainbow hover:opacity-80"
+              >
+                {linkLabel}
+              </Link>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   )
 }
