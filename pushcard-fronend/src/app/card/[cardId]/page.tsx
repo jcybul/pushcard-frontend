@@ -108,7 +108,6 @@ export default function CardPage() {
         {/* Main Card Display */}
         <FinancialCard
           brandName={card.merchant_name}
-          gradient={gradient}
           balance={isComplete ? "READY" : punchesRemaining}
           cardNumber={`#${card.id.slice(0, 8)}`}
           className="mb-[var(--spacing-section)]"

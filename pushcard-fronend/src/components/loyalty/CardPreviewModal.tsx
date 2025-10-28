@@ -19,7 +19,7 @@ interface CardPreviewModalProps {
   userId: string
 }
 
-export function CardPreviewModal({ isOpen, onClose, programId, userId }: CardPreviewModalProps) {
+export  function CardPreviewModal({ isOpen, onClose, programId, userId }: CardPreviewModalProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [creating, setCreating] = useState(false)
