@@ -16,6 +16,7 @@ export default function MerchantDashboard() {
     const [showQRScanner, setShowQRScanner] = useState(false)
     const [scanMode, setScanMode] = useState<'punch' | 'redeem'>('punch')
     const [programs, setPrograms] = useState([])
+    const [programsLoading, setProgramsLoading] = useState(true)
     const [punching, setPunching] = useState(false)
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
     const [showConfirmRedeem, setShowConfirmRedeem] = useState(false)
@@ -38,12 +39,14 @@ export default function MerchantDashboard() {
         const loadPrograms = async () => {
         if (!user || loading || userRole !== 'merchant') return
         
+        setProgramsLoading(true)
         try {
             const { data: { session } } = await supabase.auth.getSession()
             const token = session?.access_token
 
             if (!token) {
             console.error('No access token found')
+            setProgramsLoading(false)
             return
             }
             
@@ -65,6 +68,8 @@ export default function MerchantDashboard() {
             
         } catch (error) {
             console.error('Failed to load programs:', error)
+        } finally {
+            setProgramsLoading(false)
         }
     }
     
@@ -112,7 +117,21 @@ export default function MerchantDashboard() {
       
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}))
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`)
+        let errorMessage = errorData.message || 'Failed to add punch'
+        
+        if (response.status === 400) {
+          errorMessage = 'Invalid card. Scan again.'
+        } else if (response.status === 404) {
+          errorMessage = 'Card not found. Customer needs to join first.'
+        } else if (response.status === 401 || response.status === 403) {
+          errorMessage = 'No permission. Contact your manager.'
+        } else if (response.status === 409) {
+          errorMessage = 'Already punched recently. Wait a minute.'
+        } else if (response.status >= 500) {
+          errorMessage = 'Server error. Try again.'
+        }
+        
+        throw new Error(errorMessage)
       }
       
       const data = await response.json()
@@ -120,7 +139,7 @@ export default function MerchantDashboard() {
       
       setMessage({ 
         type: 'success', 
-        text: `✓ Punch added!`
+        text: `✓ Punch added! ${data.remaining ? `${data.remaining} more needed.` : 'Card complete!'}`
       })
       
       setTimeout(() => setMessage(null), 5000)
@@ -129,7 +148,7 @@ export default function MerchantDashboard() {
       console.error('Failed to add punch:', error)
       setMessage({ 
         type: 'error', 
-        text: error.message || 'Failed to add punch. Please try again.' 
+        text: error.message || 'Failed to add punch. Scan again.'
       })
     } finally {
       setPunching(false)
@@ -177,7 +196,21 @@ export default function MerchantDashboard() {
       
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}))
-        throw new Error(errorData.message || 'Redemption failed')
+        let errorMessage = errorData.message || 'Redemption failed'
+        
+        if (response.status === 400) {
+          errorMessage = 'Not enough stamps yet.'
+        } else if (response.status === 404) {
+          errorMessage = 'Card not found. Scan again.'
+        } else if (response.status === 401 || response.status === 403) {
+          errorMessage = 'No permission. Contact your manager.'
+        } else if (response.status === 409) {
+          errorMessage = 'Already redeemed. Check with customer.'
+        } else if (response.status >= 500) {
+          errorMessage = 'Server error. Try again.'
+        }
+        
+        throw new Error(errorMessage)
       }
       
       const data = await response.json()
@@ -196,7 +229,7 @@ export default function MerchantDashboard() {
       console.error('Failed to redeem:', error)
       setMessage({ 
         type: 'error', 
-        text: error.message || 'Failed to redeem. Please try again.' 
+        text: error.message || 'Redemption failed. Try again.'
       })
     } finally {
       setPunching(false)
@@ -307,7 +340,12 @@ export default function MerchantDashboard() {
         <div>
           <h2 className="text-h2 font-semibold mb-[var(--spacing-md)]">Your Loyalty Programs</h2>
           
-          {programs.length === 0 ? (
+          {programsLoading ? (
+            <Card className="text-center py-12">
+              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mb-4"></div>
+              <p className="text-gray-600">Loading programs...</p>
+            </Card>
+          ) : programs.length === 0 ? (
             <Card className="text-center py-12">
               <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-purple-blue flex items-center justify-center opacity-50">
                 <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">

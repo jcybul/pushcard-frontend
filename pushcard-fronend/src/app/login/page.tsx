@@ -2,32 +2,77 @@
 
 import { AuthForm } from '@/components/AuthForm'
 import { useAuth } from '@/contexts/AuthContext'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'  
 import { useEffect, useState } from 'react'
+import { supabase } from '@/lib/supabase'
 
 export default function LoginPage() {
   const { signIn, user, loading, userRole } = useAuth()
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
+  const searchParams = useSearchParams()
+  const programId = searchParams.get('programId') || null
+ 
+  const mapAuthError = (error: any) => {
+    const status = (error && (error.status || error.code)) ?? undefined
+    const message = (error && error.message) ? String(error.message) : ''
+    const isDev = process.env.NODE_ENV === 'development'
+
+    if (/invalid login credentials/i.test(message) || status === 400 || status === 401) {
+      return 'Invalid email or password. Please try again.'
+    }
+    if (/email.*(verify|confirm)/i.test(message)) {
+      return 'Please verify your email. Check your inbox for the verification link.'
+    }
+    if (status === 429 || /too many/i.test(message)) {
+      return 'Too many attempts. Please wait a minute and try again.'
+    }
+    if (/network/i.test(message)) {
+      return 'Network error. Check your connection and try again.'
+    }
+
+    return message || (isDev ? `Unexpected error${status ? ` (status ${status})` : ''}` : 'Something went wrong. Please try again.')
+  }
 
   useEffect(() => {
-    if (!loading && user) {
-      if (userRole === 'merchant') {
-        router.push('/merchant')
+    if (!loading && user && userRole) {
+      // If there's a programId, redirect back to join page
+      if (programId) {
+        router.push(`/join/${programId}`) 
       } else {
-        router.push('/dashboard')
+         // Normal redirect based on role
+        if (userRole === 'merchant') {
+          router.push('/merchant')
+        } else {
+          router.push('/dashboard')
+        }
       }
     }
-  }, [user, loading, userRole, router])
+  }, [user, loading, userRole, router, programId]) 
 
   const handleLogin = async (email: string, password: string) => {
     setIsLoading(true)
     try {
-      await signIn(email, password)
+      const { error } = await signIn(email, password)
+      if (error) {
+        throw new Error(mapAuthError(error))
+      }
     } catch (error) {
+      // Re-throw for AuthForm to display
       throw error
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleForgotPassword = async (email: string) => {
+    const redirectTo = typeof window !== 'undefined' ? `${window.location.origin}/reset-password` : undefined
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo,
+    })
+    if (error) {
+      // Reuse mapping, but show generic message for security if needed
+      throw new Error(mapAuthError(error))
     }
   }
 
@@ -51,6 +96,8 @@ export default function LoginPage() {
         linkHref="/signup"
         linkLabel="Sign up"
         loading={isLoading}
+        showForgotPassword={true}
+        onForgotPassword={handleForgotPassword}
       />
     </div>
   )

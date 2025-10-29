@@ -16,6 +16,8 @@ interface AuthFormProps {
   linkLabel: string
   loading?: boolean
   showAdditionalFields?: boolean
+  showForgotPassword?: boolean
+  onForgotPassword?: (email: string) => Promise<void>
 }
 
 export function AuthForm({
@@ -28,6 +30,8 @@ export function AuthForm({
   linkLabel,
   loading = false,
   showAdditionalFields = false,
+  showForgotPassword = false,
+  onForgotPassword,
 }: AuthFormProps) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -35,13 +39,28 @@ export function AuthForm({
   const [lastName, setLastName] = useState('')
   const [birthdate, setBirthdate] = useState('')
   const [error, setError] = useState('')
+  const [info, setInfo] = useState('')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setInfo('')
     
     if (!email || !password) {
       setError('Please fill in all required fields')
+      return
+    }
+
+    // Basic email format validation
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
+    if (!emailPattern.test(email)) {
+      setError('Please enter a valid email address')
+      return
+    }
+
+    // Basic password length check
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters')
       return
     }
 
@@ -55,6 +74,27 @@ export function AuthForm({
       await onSubmit(email, password, additionalData)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
+    }
+  }
+
+  const handleForgotClick = async () => {
+    setError('')
+    setInfo('')
+    if (!showForgotPassword || !onForgotPassword) return
+    if (!email) {
+      setError('Enter your email to reset your password')
+      return
+    }
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
+    if (!emailPattern.test(email)) {
+      setError('Please enter a valid email address')
+      return
+    }
+    try {
+      await onForgotPassword(email)
+      setInfo('Reset link sent')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unable to start password reset')
     }
   }
 
@@ -127,8 +167,7 @@ export function AuthForm({
                 name="email"
                 type="email"
                 autoComplete="email"
-                required
-                placeholder="you@example.com"
+                placeholder="you@mail.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
@@ -143,7 +182,6 @@ export function AuthForm({
                 name="password"
                 type="password"
                 autoComplete={showAdditionalFields ? "new-password" : "current-password"}
-                required
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -155,6 +193,12 @@ export function AuthForm({
                 {error}
               </div>
             )}
+
+          {info && (
+            <div className="rounded-[var(--radius-medium)] bg-green-600 text-white p-[var(--spacing-sm)] text-sm">
+              {info}
+            </div>
+          )}
 
             <Button
               type="submit"
@@ -175,6 +219,19 @@ export function AuthForm({
                 {linkLabel}
               </Link>
             </div>
+
+            {showForgotPassword && !showAdditionalFields && (
+              <div className="text-center text-sm">
+                <button
+                  type="button"
+                  onClick={handleForgotClick}
+                  className="text-gray-600 hover:text-gray-800 underline"
+                  disabled={loading}
+                >
+                  Forgot password?
+                </button>
+              </div>
+            )}
           </form>
         </CardContent>
       </Card>

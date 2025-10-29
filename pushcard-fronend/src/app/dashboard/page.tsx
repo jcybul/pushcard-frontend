@@ -12,29 +12,36 @@ import { FinancialCard } from '@/components/loyalty/FinancialCard'
 import { CardPreviewModal } from '@/components/loyalty/CardPreviewModal'
 
 export default function DashboardPage() {
-  const { user, loading, signOut } = useAuth()
+  const { user, loading, signOut, userRole } = useAuth()
   const router = useRouter()
   const [showQRScanner, setShowQRScanner] = useState(false)
   const [scannedData, setScannedData] = useState<string>('')
   const [punchCards, setPunchCards] = useState<PunchCard[]>([])
-  const [selectedProgramId, setSelectedProgramId] = useState<string | null>(null)  
+  const [selectedCard, setSelectedCard] = useState<PunchCard | null>(null)
+  const [cardsLoading, setCardsLoading] = useState(true)  
 
   useEffect(() => {
     if (!loading && !user) {
       router.push('/login')
     }
-  }, [user, loading, router])
+    // Redirect merchants to their page
+    if (!loading && user && userRole === 'merchant') {
+      router.push('/merchant')
+    }
+  }, [user, loading, userRole, router])
 
   useEffect(() => {
     const loadCustomerCards = async () => {
       if (!user || loading) return
       
+      setCardsLoading(true)
       try {
         const { data: { session } } = await supabase.auth.getSession()
         const token = session?.access_token
         
         if (!token) {
           console.error('No access token found')
+          setCardsLoading(false)
           return
         }
         
@@ -57,6 +64,8 @@ export default function DashboardPage() {
         
       } catch (error) {
         console.error('Failed to load customer cards:', error)
+      } finally {
+        setCardsLoading(false)
       }
     }
     
@@ -120,7 +129,14 @@ export default function DashboardPage() {
         <div className="space-y-[var(--spacing-lg)]">
           <h2 className="text-h2 font-semibold">Your Loyalty Cards</h2>
           
-          {punchCards.map((card, index) => {
+          {cardsLoading && (
+            <div className="text-center py-12">
+              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mb-4"></div>
+              <p className="text-gray-600">Loading cards...</p>
+            </div>
+          )}
+
+          {!cardsLoading && punchCards.map((card, index) => {
             const punchesRemaining = card.punches_required - card.current_punches
             const isComplete = punchesRemaining <= 0
             
@@ -133,7 +149,7 @@ export default function DashboardPage() {
                 <div 
                   key={card.id}
                   className="cursor-pointer"
-                  onClick={() => setSelectedProgramId(card.program_id)}  
+                  onClick={() => setSelectedCard(card)}  
                 >
                 <FinancialCard
                   brandName={card.merchant_name}
@@ -158,7 +174,7 @@ export default function DashboardPage() {
           })}
 
         {/* Empty State */}
-        {punchCards.length === 0 && (
+        {!cardsLoading && punchCards.length === 0 && (
           <div className="text-center py-12">
             <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-purple-blue flex items-center justify-center opacity-70">
               <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -201,11 +217,11 @@ export default function DashboardPage() {
         </div>
       </main>
 
-      {selectedProgramId && user && (
+      {selectedCard && user && (
         <CardPreviewModal
           isOpen={true}
-          onClose={() => setSelectedProgramId(null)}
-          programId={selectedProgramId}
+          onClose={() => setSelectedCard(null)}
+          card={selectedCard}
           userId={user.id}
         />
       )}
