@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 import { API_URL } from '@/lib/api'
 import { Program } from '@/types/api'
-import { CardPreviewModal } from '@/components/loyalty/CardPreviewModal'
+import {CardPreviewModal} from '@/components/loyalty/CardPreviewModal'
 
 export default function JoinProgramPage() {
   const params = useParams<{ programId: string }>()
