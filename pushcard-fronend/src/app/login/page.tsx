@@ -3,10 +3,11 @@
 import { AuthForm } from '@/components/AuthForm'
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter, useSearchParams } from 'next/navigation'  
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { supabase } from '@/lib/supabase'
 
-export default function LoginPage() {
+// Split into inner component that uses searchParams
+function LoginContent() {
   const { signIn, user, loading, userRole } = useAuth()
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
@@ -36,11 +37,11 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!loading && user && userRole) {
-      // If there's a programId, redirect back to join page
+      // If there's a programId from URL, redirect back to join page
       if (programId) {
         router.push(`/join/${programId}`) 
       } else {
-         // Normal redirect based on role
+        // Normal redirect based on role
         if (userRole === 'merchant') {
           router.push('/merchant')
         } else {
@@ -58,7 +59,6 @@ export default function LoginPage() {
         throw new Error(mapAuthError(error))
       }
     } catch (error) {
-      // Re-throw for AuthForm to display
       throw error
     } finally {
       setIsLoading(false)
@@ -71,7 +71,6 @@ export default function LoginPage() {
       redirectTo,
     })
     if (error) {
-      // Reuse mapping, but show generic message for security if needed
       throw new Error(mapAuthError(error))
     }
   }
@@ -100,5 +99,18 @@ export default function LoginPage() {
         onForgotPassword={handleForgotPassword}
       />
     </div>
+  )
+}
+
+// Outer component wraps with Suspense
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(155deg, rgba(30, 123, 60, 0.59) 0%, rgba(200, 217, 72, 0.7) 100%)' }}>
+        <div className="text-white">Loading...</div>
+      </div>
+    }>
+      <LoginContent />
+    </Suspense>
   )
 }
