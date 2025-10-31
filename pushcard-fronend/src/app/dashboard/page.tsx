@@ -24,11 +24,7 @@ export default function DashboardPage() {
     if (!loading && !user) {
       router.push('/login')
     }
-    // Redirect merchants to their page
-    if (!loading && user && userRole === 'merchant') {
-      router.push('/merchant')
-    }
-  }, [user, loading, userRole, router])
+  }, [user, loading, router])
 
   useEffect(() => {
     const loadCustomerCards = async () => {

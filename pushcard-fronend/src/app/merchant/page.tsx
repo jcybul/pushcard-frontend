@@ -11,11 +11,12 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { Badge } from '@/components/ui/badge'
 
 export default function MerchantDashboard() {
-    const { user, loading, signOut, isCustomer, userRole, merchantId } = useAuth()
+    const { user, loading, signOut, isCustomer, userRole } = useAuth()
     const router = useRouter()
     const [showQRScanner, setShowQRScanner] = useState(false)
     const [scanMode, setScanMode] = useState<'punch' | 'redeem'>('punch')
-    const [programs, setPrograms] = useState([])
+    const [programs, setPrograms] = useState<any[]>([])
+    const [groupedPrograms, setGroupedPrograms] = useState<any[]>([])
     const [programsLoading, setProgramsLoading] = useState(true)
     const [punching, setPunching] = useState(false)
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
@@ -50,7 +51,7 @@ export default function MerchantDashboard() {
             return
             }
             
-            const response = await fetch(`${API_URL}/api/program/merchant/${merchantId}/programs`, {
+            const response = await fetch(`${API_URL}/api/program/merchant_user_programs`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -64,7 +65,33 @@ export default function MerchantDashboard() {
             }
             
             const data = await response.json()
-            setPrograms(data.programs || data || [])
+            // Normalize response: API returns { programs: { merchantId: { merchant_info, programs: [] } }, success }
+            let normalizedPrograms: any[] = []
+            const programsField = (data as any)?.programs
+            if (programsField && typeof programsField === 'object' && !Array.isArray(programsField)) {
+              const grouped: any[] = []
+              for (const merchantEntry of Object.values(programsField) as any[]) {
+                const merchantInfo = merchantEntry?.merchant_info || {}
+                const items = Array.isArray(merchantEntry?.programs) ? merchantEntry.programs : []
+                const programsForMerchant = items.map((p: any) => ({
+                  ...p,
+                  brand_color: merchantInfo.brand_color,
+                  merchant_name: merchantInfo.name,
+                  merchant_logo_url: merchantInfo.logo_url,
+                  // Future-ready counts if API provides them per program or per merchant entry
+                  active_cards: p?.active_cards ?? merchantEntry?.active_cards,
+                  total_redemptions: p?.total_redemptions ?? p?.total_redepmtions ?? merchantEntry?.total_redemptions ?? merchantEntry?.total_redepmtions,
+                }))
+                grouped.push({ merchant_info: merchantInfo, programs: programsForMerchant })
+                normalizedPrograms.push(...programsForMerchant)
+              }
+              setGroupedPrograms(grouped)
+            } else if (Array.isArray(programsField)) {
+              normalizedPrograms = programsField
+            } else if (Array.isArray(data)) {
+              normalizedPrograms = data
+            }
+            setPrograms(normalizedPrograms)
             
         } catch (error) {
             console.error('Failed to load programs:', error)
@@ -117,21 +144,7 @@ export default function MerchantDashboard() {
       
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}))
-        let errorMessage = errorData.message || 'Failed to add punch'
-        
-        if (response.status === 400) {
-          errorMessage = 'Invalid card. Scan again.'
-        } else if (response.status === 404) {
-          errorMessage = 'Card not found. Customer needs to join first.'
-        } else if (response.status === 401 || response.status === 403) {
-          errorMessage = 'No permission. Contact your manager.'
-        } else if (response.status === 409) {
-          errorMessage = 'Already punched recently. Wait a minute.'
-        } else if (response.status >= 500) {
-          errorMessage = 'Server error. Try again.'
-        }
-        
-        throw new Error(errorMessage)
+        throw new Error(errorData.error || errorData.message || 'Failed to add punch')
       }
       
       const data = await response.json()
@@ -196,21 +209,7 @@ export default function MerchantDashboard() {
       
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}))
-        let errorMessage = errorData.message || 'Redemption failed'
-        
-        if (response.status === 400) {
-          errorMessage = 'Not enough stamps yet.'
-        } else if (response.status === 404) {
-          errorMessage = 'Card not found. Scan again.'
-        } else if (response.status === 401 || response.status === 403) {
-          errorMessage = 'No permission. Contact your manager.'
-        } else if (response.status === 409) {
-          errorMessage = 'Already redeemed. Check with customer.'
-        } else if (response.status >= 500) {
-          errorMessage = 'Server error. Try again.'
-        }
-        
-        throw new Error(errorMessage)
+        throw new Error(errorData.error || errorData.message || 'Redemption failed')
       }
       
       const data = await response.json()
@@ -258,6 +257,10 @@ export default function MerchantDashboard() {
     return null
   }
   
+  const totalPrograms = Array.isArray(groupedPrograms)
+    ? groupedPrograms.reduce((sum, group: any) => sum + (Array.isArray(group?.programs) ? group.programs.length : 0), 0)
+    : 0
+
   return (
     <div className="min-h-screen bg-[var(--color-background)]">
       {/* Mobile-First Navigation */}
@@ -345,7 +348,7 @@ export default function MerchantDashboard() {
               <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mb-4"></div>
               <p className="text-gray-600">Loading programs...</p>
             </Card>
-          ) : programs.length === 0 ? (
+          ) : (totalPrograms === 0) ? (
             <Card className="text-center py-12">
               <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-purple-blue flex items-center justify-center opacity-50">
                 <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -356,64 +359,69 @@ export default function MerchantDashboard() {
               <p className="text-caption">Contact support to set up your loyalty programs.</p>
             </Card>
           ) : (     
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[var(--spacing-md)]">
-            {programs.map((program: any) => {
-              const brandColor = program.brand_color || '#667eea'
-              
-              return (
-                <Card 
-                  key={program.id} 
-                  className="hover-lift overflow-hidden"
-                  style={{
-                    backgroundColor: `${brandColor}40`, 
-                  }}
-                >
-                  {/* Header */}
-                  <CardHeader className="pb-3">
-                    <div className="flex justify-between items-start gap-3">
-                      <div className="flex-1">
-                        <CardTitle className="text-base mb-1">{program.name}</CardTitle>
-                        <p className="text-xs text-gray-500">{program.merchant_name}</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-[var(--spacing-md)]">
+              {Array.isArray(groupedPrograms) && groupedPrograms.map((group: any) => {
+                const merchant = group?.merchant_info || {}
+                const brandColor = merchant.brand_color || '#667eea'
+                return (
+                  <Card key={merchant.id} className="overflow-hidden h-full">
+                    <CardHeader className="pb-3">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <CardTitle className="text-base mb-1">{merchant.name}</CardTitle>
+                          <p className="text-xs text-gray-500">Programs</p>
+                        </div>
+                        {merchant.logo_url && (
+                          <div className="w-12 h-12 flex items-center justify-center flex-shrink-0">
+                            <img 
+                              src={merchant.logo_url} 
+                              alt={merchant.name}
+                              className="w-10 h-10 object-contain"
+                            />
+                          </div>
+                        )}
                       </div>
-                    {program.merchant_logo_url && (
-                      <div className="w-12 h-12 flex items-center justify-center flex-shrink-0">
-                        <img 
-                          src={program.merchant_logo_url} 
-                          alt={program.merchant_name}
-                          className="w-10 h-10 object-contain"
-                        />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-[var(--spacing-md)]">
+                        {Array.isArray(group?.programs) && group.programs.map((program: any) => (
+                          <Card 
+                            key={program.id}
+                            className="hover-lift overflow-hidden"
+                            style={{ backgroundColor: `${(program.brand_color || brandColor)}40` }}
+                          >
+                            <CardHeader className="pb-3">
+                              <div className="flex justify-between items-start gap-3">
+                                <div className="flex-1">
+                                  <CardTitle className="text-base mb-1">{program.name}</CardTitle>
+                                  <p className="text-xs text-gray-500">{merchant.name}</p>
+                                </div>
+                                {/* Merchant logo removed here to avoid duplicates; shown at group header */}
+                              </div>
+                            </CardHeader>
+                            <CardContent className="space-y-3">
+                              <p className="text-sm text-gray-600">
+                                {program.description || `Collect ${program.punches_required} stamps for a reward`}
+                              </p>
+                              <div className="flex items-center justify-between pt-2 border-t text-sm">
+                                <div className="flex items-center gap-1">
+                                  <span className="text-gray-500">Active:</span>
+                                  <span className="font-semibold text-gray-900">{program.active_cards || 0}</span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <span className="text-gray-500">Redeemed:</span>
+                                  <span className="font-semibold text-gray-900">{program.total_redemptions ?? program.total_redepmtions ?? 0}</span>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
                       </div>
-                    )}
-                    </div>
-                  </CardHeader>
-          
-                  <CardContent className="space-y-3">
-                    {/* Program Description */}
-                    <p className="text-sm text-gray-600">
-                      {program.description || `Collect ${program.punches_required} stamps for a reward`}
-                    </p>
-                    
-                    {/* Compact Stats Row */}
-                    <div className="flex items-center justify-between pt-2 border-t text-sm">
-                      <div className="flex items-center gap-1">
-                        <span className="text-gray-500">Active:</span>
-                        <span className="font-semibold text-gray-900">
-                          {program.active_cards || 0}
-                        </span>
-                      </div>
-                      
-                      <div className="flex items-center gap-1">
-                        <span className="text-gray-500">Redeemed:</span>
-                        <span className="font-semibold text-gray-900">
-                          {program.total_redepmtions || 0}
-                        </span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )
-            })}
-          </div>
+                    </CardContent>
+                  </Card>
+                )
+              })}
+            </div>
           )}
         </div>
 
@@ -443,37 +451,31 @@ export default function MerchantDashboard() {
 {/* Redeem Confirmation Modal */}
 {showConfirmRedeem && pendingCardId && (
   <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
-      <h2 className="text-2xl font-bold text-gray-900 mb-4">Confirm Redemption</h2>
+    <div className="bg-white rounded-xl max-w-sm w-full p-6">
+      <h2 className="text-xl font-bold text-gray-900 mb-4">Redeem Reward?</h2>
       
-      <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 mb-6 text-center">
-        <div className="text-6xl mb-3">🎉</div>
-        <p className="text-lg font-semibold text-gray-900">
-          Ready to redeem this reward?
-        </p>
-      </div>
-      
-      <p className="text-sm text-gray-600 mb-6 text-center">
-        This will mark the reward as redeemed and reset the card.
+      <p className="text-gray-600 mb-6">
+        This will redeem the reward and reset the customer's card.
       </p>
       
       <div className="flex gap-3">
-        <button
+        <Button
           onClick={() => {
             setShowConfirmRedeem(false)
             setPendingCardId(null)
           }}
-          className="flex-1 px-4 py-3 rounded-xl bg-gray-200 text-gray-700 font-medium hover:bg-gray-300"
+          variant="ghost"
+          className="flex-1"
         >
           Cancel
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={confirmRedeem}
           disabled={punching}
-          className="flex-1 px-4 py-3 rounded-xl bg-green-600 text-white font-bold hover:bg-green-700 disabled:opacity-50"
+          className="flex-1 bg-green-600 hover:bg-green-700"
         >
-          {punching ? 'Redeeming...' : 'Confirm Redeem'}
-        </button>
+          {punching ? 'Redeeming...' : 'Confirm'}
+        </Button>
       </div>
     </div>
   </div>
