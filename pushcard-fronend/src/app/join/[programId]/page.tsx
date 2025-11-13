@@ -293,7 +293,7 @@ export default function JoinProgramPage() {
             {/* Merchant Message */}
             {user && userRole === 'merchant' && (
               <div className="text-center py-6">
-                <div className="text-4xl mb-3">🏪</div>
+                <div className="text-4xl mb-3"></div>
                 <h2 className="text-xl font-bold text-gray-900 mb-2">Merchant Account</h2>
                 <p className="text-gray-600 text-sm">
                   This page is for customers. Use the merchant dashboard to manage your programs.
@@ -321,7 +321,6 @@ export default function JoinProgramPage() {
 
           {/* Trust Indicators */}
           <div className="mt-8 text-center space-y-2">
-            <p className="text-white/70 text-xs">Trusted by thousands of customers</p>
             <div className="flex items-center justify-center gap-6 text-white/60">
               <div className="flex items-center gap-1 text-xs">
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">

@@ -216,7 +216,7 @@ export default function MerchantDashboard() {
       
       setMessage({ 
         type: 'success', 
-        text: `🎉 Reward Redeemed for ${redeemCardData?.customer_name || 'customer'}!` 
+        text: `Reward Redeemed for ${redeemCardData?.customer_name || 'customer'}!` 
       })
       
       setPendingCardId(null)

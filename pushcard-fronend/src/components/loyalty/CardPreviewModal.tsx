@@ -236,7 +236,6 @@ export function CardPreviewModal({ isOpen, onClose, card, programId, userId }: C
             <div className="px-4 py-6">
               {isComplete && (
                 <div className="text-center mb-6 mt-4">
-                  <div className="text-4xl mb-2">🎉</div>
                   <h3 className="text-xl font-bold mb-1">Reward Unlocked!</h3>
                   <p className="text-sm text-gray-600">Show this to claim your reward</p>
                 </div>

@@ -88,7 +88,6 @@ export default function CardPage() {
         {/* Success Message */}
         {isComplete && (
           <div className="text-center mb-[var(--spacing-lg)] animate-pulse-scale">
-            <div className="text-[3rem] mb-2">🎉</div>
             <h1 className="text-h1 font-bold mb-2">Reward Unlocked!</h1>
             <p className="text-caption">Show this to the merchant to claim your reward</p>
           </div>
