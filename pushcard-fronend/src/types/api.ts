@@ -5,6 +5,7 @@ export interface PunchCard {
     merchant_name: string
     merchant_logo_url: string | null
     wallet_brand_color?: string | null 
+    foreground_color?: string | null
     program_name: string
     current_punches: number
     punches_required: number
@@ -23,7 +24,8 @@ export interface PunchCard {
     merchant_logo_url: string | null
     reward_description?: string
     expires_after_days?: number
-    brand_color?: string | null 
+    brand_color?: string | null
+    foreground_color?: string | null 
     active: boolean
   }
   

@@ -383,7 +383,7 @@ export default function MerchantDashboard() {
                       </div>
                     </CardHeader>
                     <CardContent>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-[var(--spacing-md)]">
+                      <div className="space-y-[var(--spacing-md)]">
                         {Array.isArray(group?.programs) && group.programs.map((program: any) => (
                           <Card 
                             key={program.id}

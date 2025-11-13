@@ -138,6 +138,9 @@ export default function DashboardPage() {
               ? card.wallet_brand_color 
               : 'linear-gradient(135deg, rgba(79, 70, 229, 0.9), rgba(124, 58, 237, 0.9))' // default blue-purple
             
+            // Use foreground_color from API, or default white
+            const textColor = card.foreground_color || '#ffffff'
+            
               return (
                 <div 
                   key={card.id}
@@ -148,6 +151,7 @@ export default function DashboardPage() {
                   brandName={card.merchant_name}
                   logoUrl={card.merchant_logo_url}
                   backgroundColor={backgroundColor}
+                  textColor={textColor}
                   balance={isComplete ? 'READY' : punchesRemaining}
                   cardNumber={`Card #${card.id.slice(0, 8)}`}
                   className="mb-[var(--spacing-md)]"

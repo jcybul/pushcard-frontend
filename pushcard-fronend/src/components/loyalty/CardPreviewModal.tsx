@@ -250,6 +250,7 @@ export function CardPreviewModal({ isOpen, onClose, card, programId, userId }: C
                     displayCard.wallet_brand_color || 
                     'linear-gradient(135deg, rgba(79, 70, 229, 0.9), rgba(124, 58, 237, 0.9))'
                   }
+                  textColor={displayCard.foreground_color || '#ffffff'}
                   balance={isComplete ? 'READY' : punchesRemaining}
                   cardNumber={`Card #${displayCard.id.slice(0, 8)}`}
                   className="mb-4"
@@ -394,6 +395,7 @@ export function CardPreviewModal({ isOpen, onClose, card, programId, userId }: C
                     programInfo.brand_color || 
                     'linear-gradient(135deg, rgba(79, 70, 229, 0.9), rgba(124, 58, 237, 0.9))'
                   }
+                  textColor={programInfo.foreground_color || '#ffffff'}
                   balance={programInfo.punches_required}
                   cardNumber="Preview"
                   className="mb-4"

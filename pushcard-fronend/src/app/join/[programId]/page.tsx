@@ -166,7 +166,10 @@ export default function JoinProgramPage() {
               />
             ) : (
               <div className="w-28 h-28 rounded-3xl bg-white/20 backdrop-blur-md shadow-2xl flex items-center justify-center border border-white/30">
-                <span className="text-5xl font-bold text-white drop-shadow-lg">
+                <span 
+                  className="text-5xl font-bold drop-shadow-lg"
+                  style={{ color: program.foreground_color || '#ffffff' }}
+                >
                   {program.merchant_name.charAt(0)}
                 </span>
               </div>
@@ -175,10 +178,16 @@ export default function JoinProgramPage() {
 
           {/* Title & Description */}
           <div className="text-center mb-8 space-y-3">
-            <h1 className="text-4xl sm:text-5xl font-bold text-white drop-shadow-lg tracking-tight">
+            <h1 
+              className="text-4xl sm:text-5xl font-bold drop-shadow-lg tracking-tight"
+              style={{ color: program.foreground_color || '#ffffff' }}
+            >
               {program.name}
             </h1>
-            <p className="text-white/90 text-lg sm:text-xl font-medium drop-shadow-md max-w-sm mx-auto">
+            <p 
+              className="text-lg sm:text-xl font-medium drop-shadow-md max-w-sm mx-auto"
+              style={{ color: program.foreground_color || 'rgba(255, 255, 255, 0.9)' }}
+            >
               {program.reward_description || `Collect ${program.punches_required} stamps and earn rewards`}
             </p>
           </div>

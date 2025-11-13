@@ -7,24 +7,25 @@ export interface FinancialCardProps extends React.HTMLAttributes<HTMLDivElement>
   brandName: string
   logoUrl?: string | null
   backgroundColor?: string
+  textColor?: string
   balance?: number | string
   cardNumber?: string
   children?: React.ReactNode
 }
 
 const FinancialCard = React.forwardRef<HTMLDivElement, FinancialCardProps>(
-  ({ className, brandName, logoUrl, backgroundColor = '#667eea', balance, cardNumber, children, ...props }, ref) => {
+  ({ className, brandName, logoUrl, backgroundColor = '#667eea', textColor = '#ffffff', balance, cardNumber, children, ...props }, ref) => {
     return (
       <div
         ref={ref}
         className={cn(
           "relative overflow-hidden rounded-2xl p-6 shadow-lg",
           "h-48 w-full", // Fixed height, smaller card
-          "text-white",
           className
         )}
         style={{
-          background: backgroundColor
+          background: backgroundColor,
+          color: textColor
         }}
         {...props}
       >
