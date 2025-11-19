@@ -13,6 +13,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+      - name: Verify secrets
+              run: |
+                echo "NEXT_PUBLIC_API_URL is set: ${{ secrets.NEXT_PUBLIC_API_URL != '' }}"
+                echo "NEXT_PUBLIC_SUPABASE_URL is set: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL != '' }}"
+                echo "NEXT_PUBLIC_SUPABASE_ANON_KEY is set: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY != '' }}"
+
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
@@ -26,12 +32,7 @@ jobs:
         run: |
           gcloud auth configure-docker gcr.io
 
-      - name: Verify secrets
-        run: |
-          echo "NEXT_PUBLIC_API_URL is set: ${{ secrets.NEXT_PUBLIC_API_URL != '' }}"
-          echo "NEXT_PUBLIC_SUPABASE_URL is set: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL != '' }}"
-          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY is set: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY != '' }}"
-
+     
       - name: Build Docker image
         run: |
           docker build \
