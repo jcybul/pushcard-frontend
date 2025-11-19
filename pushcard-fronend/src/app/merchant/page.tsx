@@ -29,9 +29,9 @@ export default function MerchantDashboard() {
     if (!loading && !user) {
       router.push('/login')
     }
-    // Redirect customers to their dashboard
+    // Redirect customers to their wallet
     if (!loading && user && isCustomer) {
-      router.push('/dashboard')
+      router.push('/wallet')
     }
   }, [user, loading, isCustomer, router])
 
@@ -257,10 +257,6 @@ export default function MerchantDashboard() {
     return null
   }
   
-  const totalPrograms = Array.isArray(groupedPrograms)
-    ? groupedPrograms.reduce((sum, group: any) => sum + (Array.isArray(group?.programs) ? group.programs.length : 0), 0)
-    : 0
-
   return (
     <div className="min-h-screen bg-[var(--color-background)]">
       {/* Mobile-First Navigation */}
@@ -348,7 +344,7 @@ export default function MerchantDashboard() {
               <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mb-4"></div>
               <p className="text-gray-600">Loading programs...</p>
             </Card>
-          ) : (totalPrograms === 0) ? (
+          ) : (programs.length === 0) ? (
             <Card className="text-center py-12">
               <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-purple-blue flex items-center justify-center opacity-50">
                 <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -360,67 +356,46 @@ export default function MerchantDashboard() {
             </Card>
           ) : (     
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-[var(--spacing-md)]">
-              {Array.isArray(groupedPrograms) && groupedPrograms.map((group: any) => {
-                const merchant = group?.merchant_info || {}
-                const brandColor = merchant.brand_color || '#667eea'
-                return (
-                  <Card key={merchant.id} className="overflow-hidden h-full">
-                    <CardHeader className="pb-3">
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <CardTitle className="text-base mb-1">{merchant.name}</CardTitle>
-                          <p className="text-xs text-gray-500">Programs</p>
+              {programs.map((program: any) => (
+                <Card 
+                  key={program.id}
+                  className="hover-lift overflow-hidden"
+                  style={{ backgroundColor: `${program.brand_color || '#667eea'}40` }}
+                >
+                  <CardHeader className="pb-3">
+                    <div className="flex justify-between items-start gap-3">
+                      <div className="flex-1">
+                        <CardTitle className="text-base mb-1">{program.name}</CardTitle>
+                        <p className="text-xs text-gray-500">{program.merchant_name}</p>
+                      </div>
+                      {program.merchant_logo_url && (
+                        <div className="w-12 h-12 flex items-center justify-center flex-shrink-0">
+                          <img 
+                            src={program.merchant_logo_url} 
+                            alt={program.merchant_name}
+                            className="w-10 h-10 object-contain"
+                          />
                         </div>
-                        {merchant.logo_url && (
-                          <div className="w-12 h-12 flex items-center justify-center flex-shrink-0">
-                            <img 
-                              src={merchant.logo_url} 
-                              alt={merchant.name}
-                              className="w-10 h-10 object-contain"
-                            />
-                          </div>
-                        )}
+                      )}
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <p className="text-sm text-gray-600">
+                      {program.description || `Collect ${program.punches_required} stamps for a reward`}
+                    </p>
+                    <div className="flex items-center justify-between pt-2 border-t text-sm">
+                      <div className="flex items-center gap-1">
+                        <span className="text-gray-500">Active:</span>
+                        <span className="font-semibold text-gray-900">{program.active_cards || 0}</span>
                       </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-[var(--spacing-md)]">
-                        {Array.isArray(group?.programs) && group.programs.map((program: any) => (
-                          <Card 
-                            key={program.id}
-                            className="hover-lift overflow-hidden"
-                            style={{ backgroundColor: `${(program.brand_color || brandColor)}40` }}
-                          >
-                            <CardHeader className="pb-3">
-                              <div className="flex justify-between items-start gap-3">
-                                <div className="flex-1">
-                                  <CardTitle className="text-base mb-1">{program.name}</CardTitle>
-                                  <p className="text-xs text-gray-500">{merchant.name}</p>
-                                </div>
-                                {/* Merchant logo removed here to avoid duplicates; shown at group header */}
-                              </div>
-                            </CardHeader>
-                            <CardContent className="space-y-3">
-                              <p className="text-sm text-gray-600">
-                                {program.description || `Collect ${program.punches_required} stamps for a reward`}
-                              </p>
-                              <div className="flex items-center justify-between pt-2 border-t text-sm">
-                                <div className="flex items-center gap-1">
-                                  <span className="text-gray-500">Active:</span>
-                                  <span className="font-semibold text-gray-900">{program.active_cards || 0}</span>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                  <span className="text-gray-500">Redeemed:</span>
-                                  <span className="font-semibold text-gray-900">{program.total_redemptions ?? program.total_redepmtions ?? 0}</span>
-                                </div>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        ))}
+                      <div className="flex items-center gap-1">
+                        <span className="text-gray-500">Redeemed:</span>
+                        <span className="font-semibold text-gray-900">{program.total_redemptions ?? program.total_redepmtions ?? 0}</span>
                       </div>
-                    </CardContent>
-                  </Card>
-                )
-              })}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
           )}
         </div>

@@ -141,7 +141,7 @@ export function CardPreviewModal({ isOpen, onClose, card, programId, userId }: C
         alert('Apple Wallet pass downloaded!')
         setTimeout(() => {
           onClose()
-          router.push('/dashboard')
+          router.push('/wallet')
         }, 2000)
       } else {
         const googleResponse = await fetch(
@@ -167,7 +167,7 @@ export function CardPreviewModal({ isOpen, onClose, card, programId, userId }: C
           alert('Opening Google Wallet.')
           setTimeout(() => {
             onClose()
-            router.push('/dashboard')
+            router.push('/wallet')
           }, 2000)
         } else {
           throw new Error('No Google Wallet save URL returned')
@@ -265,16 +265,30 @@ export function CardPreviewModal({ isOpen, onClose, card, programId, userId }: C
                   </div>
                 </FinancialCard>
 
-                {/* QR Code */}
-                <div className="text-center pt-2 border-t border-gray-100">
-                  <h3 className="text-base font-bold mb-2">Scan to Add Punch</h3>
-                  <QRDisplay
-                    value={`${displayCard.id}`}
-                    size={150}
-                    title=""
-                    subtitle=""
-                  />
-                </div>
+                {/* QR Code or Expired Message */}
+                {displayCard.status === 'expired' ? (
+                  <div className="text-center pt-4 pb-2 border-t border-gray-100">
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+                      <svg className="w-12 h-12 text-red-500 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <h3 className="text-base font-bold mb-2 text-red-800">Card Expired</h3>
+                      <p className="text-sm text-red-600">
+                        Click below to download a new card
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center pt-2 border-t border-gray-100">
+                    <h3 className="text-base font-bold mb-2">Scan to Add Punch</h3>
+                    <QRDisplay
+                      value={`${displayCard.id}`}
+                      size={150}
+                      title=""
+                      subtitle=""
+                    />
+                  </div>
+                )}
 
                 {/* Reward Description */}
                 {displayCard.reward_description && (

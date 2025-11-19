@@ -132,6 +132,7 @@ export default function DashboardPage() {
           {!cardsLoading && punchCards.map((card, index) => {
             const punchesRemaining = card.punches_required - card.current_punches
             const isComplete = punchesRemaining <= 0
+            const isExpired = card.status === 'expired'
             
             // Use wallet_brand_color from API, or default gradient
             const backgroundColor = card.wallet_brand_color 
@@ -144,9 +145,18 @@ export default function DashboardPage() {
               return (
                 <div 
                   key={card.id}
-                  className="cursor-pointer"
+                  className="cursor-pointer relative mb-[var(--spacing-md)]"
                   onClick={() => setSelectedCard(card)}  
                 >
+                  {/* Expired Badge - Top Left Corner (Outside Card) */}
+                  {isExpired && (
+                    <div className="absolute -top-2 -left-2 z-10">
+                      <span className="bg-gray-900/90 text-white text-xs font-semibold px-3 py-1 rounded-md shadow-lg">
+                        Expired
+                      </span>
+                    </div>
+                  )}
+                  
                 <FinancialCard
                   brandName={card.merchant_name}
                   logoUrl={card.merchant_logo_url}
@@ -154,7 +164,7 @@ export default function DashboardPage() {
                   textColor={textColor}
                   balance={isComplete ? 'READY' : punchesRemaining}
                   cardNumber={`Card #${card.id.slice(0, 8)}`}
-                  className="mb-[var(--spacing-md)]"
+                  className={`${isExpired ? 'opacity-60' : ''}`}
                 >
                   {/* Clean Progress Display - Bottom Right */}
                   <div className="absolute bottom-6 right-6">

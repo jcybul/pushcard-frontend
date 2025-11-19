@@ -36,7 +36,7 @@ export default function SignUpPage() {
       if (userRole === 'merchant') {
         router.push('/merchant')
       } else {
-        router.push('/dashboard')
+        router.push('/wallet')
       }
     }
   }, [user, loading, userRole, router])
