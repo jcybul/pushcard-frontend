@@ -157,6 +157,7 @@ export default function DashboardPage() {
                     </div>
                   )}
                   
+                  
                 <FinancialCard
                   brandName={card.merchant_name}
                   logoUrl={card.merchant_logo_url}
