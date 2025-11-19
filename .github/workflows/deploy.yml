@@ -25,6 +25,7 @@ jobs:
 
       - name: Build Docker image
         run: |
+          run: |
           docker build \
             --platform linux/amd64 \
             --build-arg NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }} \
