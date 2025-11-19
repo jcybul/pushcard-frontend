@@ -23,9 +23,14 @@ jobs:
         run: |
           gcloud auth configure-docker gcr.io
 
+      - name: Verify secrets
+        run: |
+          echo "NEXT_PUBLIC_API_URL is set: ${{ secrets.NEXT_PUBLIC_API_URL != '' }}"
+          echo "NEXT_PUBLIC_SUPABASE_URL is set: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL != '' }}"
+          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY is set: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY != '' }}"
+
       - name: Build Docker image
         run: |
-          run: |
           docker build \
             --platform linux/amd64 \
             --build-arg NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }} \
