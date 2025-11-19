@@ -1,0 +1,43 @@
+steps:
+  # Build the Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '--platform'
+      - 'linux/amd64'
+      - '--build-arg'
+      - 'NEXT_PUBLIC_API_URL=${_NEXT_PUBLIC_API_URL}'
+      - '--build-arg'
+      - 'NEXT_PUBLIC_SUPABASE_URL=${_NEXT_PUBLIC_SUPABASE_URL}'
+      - '--build-arg'
+      - 'NEXT_PUBLIC_SUPABASE_ANON_KEY=${_NEXT_PUBLIC_SUPABASE_ANON_KEY}'
+      - '-t'
+      - 'gcr.io/punchcards/punchcard-frontend:$SHORT_SHA'
+      - '-t'
+      - 'gcr.io/punchcards/punchcard-frontend:latest'
+      - '.'
+
+  # Push image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'gcr.io/punchcards/punchcard-frontend:$SHORT_SHA'
+
+  # Deploy to Cloud Run
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'punchcard-frontend'
+      - '--image=gcr.io/punchcards/punchcard-frontend:$SHORT_SHA'
+      - '--region=us-central1'
+      - '--platform=managed'
+
+images:
+  - 'gcr.io/punchcards/punchcard-frontend:$SHORT_SHA'
+  - 'gcr.io/punchcards/punchcard-frontend:latest'
+
+substitutions:
+  _NEXT_PUBLIC_API_URL: 'https://staging.api.punchcards.cashbackpanama.com'
+  _NEXT_PUBLIC_SUPABASE_URL: 'https://mtyjuwsgysbmnhclbcng.supabase.co'
+  _NEXT_PUBLIC_SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im10eWp1d3NneXNibW5oY2xiY25nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxNTc0MDQsImV4cCI6MjA3MzczMzQwNH0.RRQ0ePIOutL_8sEEI-GKonjVR7vdQqR0w0eUyVMGaNE'
