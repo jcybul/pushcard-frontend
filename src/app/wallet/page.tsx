@@ -54,24 +54,7 @@ export default function DashboardPage() {
         }
         
         const data = await response.json()
-        const allCards = data.cards || []
-        
-        // Filter out expired cards if a newer active card exists for the same program
-        const filteredCards = allCards.filter((card: PunchCard) => {
-          // If card is not expired, always include it
-          if (card.status !== 'expired') return true
-          
-          // If card is expired, only include it if there's no active card for the same program
-          const hasActiveCardForProgram = allCards.some((otherCard: PunchCard) => 
-            otherCard.program_id === card.program_id && 
-            otherCard.status !== 'expired' &&
-            otherCard.id !== card.id
-          )
-          
-          return !hasActiveCardForProgram
-        })
-        
-        setPunchCards(filteredCards) 
+        setPunchCards(data.cards || []) 
         
       } catch (error) {
         console.error('Failed to load customer cards:', error)
@@ -173,7 +156,6 @@ export default function DashboardPage() {
                       </span>
                     </div>
                   )}
-                  
                   
                 <FinancialCard
                   brandName={card.merchant_name}

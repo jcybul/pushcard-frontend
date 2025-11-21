@@ -356,81 +356,46 @@ export default function MerchantDashboard() {
             </Card>
           ) : (     
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-[var(--spacing-md)]">
-              {programs.map((program: any) => {
-                const activeCards = program.active_cards || 0
-                const totalRedemptions = program.total_redemptions ?? program.total_redepmtions ?? 0
-                const totalPunches = program.total_punches || 892 // Placeholder for now
-                const punchesRequired = program.punches_required || 5
-                
-                // Calculate completion rate: (redemptions / active_cards) * 100
-                // This shows what % of active cards get completed
-                const completionRate = activeCards > 0 
-                  ? ((totalRedemptions / (activeCards + totalRedemptions)) * 100).toFixed(1)
-                  : 0
-                
-                return (
-                  <Card 
-                    key={program.id}
-                    className="hover-lift overflow-hidden"
-                    style={{ backgroundColor: `${program.brand_color || '#667eea'}15` }}
-                  >
-                    <CardHeader className="pb-3">
-                      <div className="flex justify-between items-start gap-3">
-                        <div className="flex-1">
-                          <CardTitle className="text-lg mb-1">{program.name}</CardTitle>
-                          <p className="text-xs text-gray-500">
-                            Collect {punchesRequired} stamps, get 1 free {program.reward_description || 'reward'}
-                          </p>
-                        </div>
-                        {program.merchant_logo_url && (
-                          <div className="w-12 h-12 flex items-center justify-center flex-shrink-0">
-                            <img 
-                              src={program.merchant_logo_url} 
-                              alt={program.merchant_name}
-                              className="w-10 h-10 object-contain"
-                            />
-                          </div>
-                        )}
+              {programs.map((program: any) => (
+                <Card 
+                  key={program.id}
+                  className="hover-lift overflow-hidden"
+                  style={{ backgroundColor: `${program.brand_color || '#667eea'}40` }}
+                >
+                  <CardHeader className="pb-3">
+                    <div className="flex justify-between items-start gap-3">
+                      <div className="flex-1">
+                        <CardTitle className="text-base mb-1">{program.name}</CardTitle>
+                        <p className="text-xs text-gray-500">{program.merchant_name}</p>
                       </div>
-                    </CardHeader>
-                    
-                    <CardContent className="space-y-3">
-                      {/* Stats Grid */}
-                      <div className="grid grid-cols-3 gap-3">
-                        <div className="text-center">
-                          <div className="text-2xl font-bold text-gray-900">{activeCards}</div>
-                          <div className="text-xs text-gray-500 mt-0.5">Active Cards</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-2xl font-bold text-gray-900">{totalPunches}</div>
-                          <div className="text-xs text-gray-500 mt-0.5">Total Punches</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-2xl font-bold text-green-600">{totalRedemptions}</div>
-                          <div className="text-xs text-gray-500 mt-0.5">Redemptions</div>
-                        </div>
-                      </div>
-                      
-                      {/* Completion Rate */}
-                      <div className="pt-2 border-t">
-                        <div className="flex justify-between items-center mb-1.5">
-                          <span className="text-sm text-gray-600">Completion Rate</span>
-                          <span className="text-lg font-bold text-gray-900">{completionRate}%</span>
-                        </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
-                          <div 
-                            className="h-full rounded-full transition-all duration-500"
-                            style={{ 
-                              width: `${completionRate}%`,
-                              background: 'linear-gradient(90deg, #667eea 0%, #764ba2 100%)'
-                            }}
+                      {program.merchant_logo_url && (
+                        <div className="w-12 h-12 flex items-center justify-center flex-shrink-0">
+                          <img 
+                            src={program.merchant_logo_url} 
+                            alt={program.merchant_name}
+                            className="w-10 h-10 object-contain"
                           />
                         </div>
+                      )}
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <p className="text-sm text-gray-600">
+                      {program.description || `Collect ${program.punches_required} stamps for a reward`}
+                    </p>
+                    <div className="flex items-center justify-between pt-2 border-t text-sm">
+                      <div className="flex items-center gap-1">
+                        <span className="text-gray-500">Active:</span>
+                        <span className="font-semibold text-gray-900">{program.active_cards || 0}</span>
                       </div>
-                    </CardContent>
-                  </Card>
-                )
-              })}
+                      <div className="flex items-center gap-1">
+                        <span className="text-gray-500">Redeemed:</span>
+                        <span className="font-semibold text-gray-900">{program.total_redemptions ?? program.total_redepmtions ?? 0}</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
           )}
         </div>
