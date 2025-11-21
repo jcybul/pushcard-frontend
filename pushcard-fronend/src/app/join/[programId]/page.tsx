@@ -124,7 +124,7 @@ export default function JoinProgramPage() {
   if (loading) {
     return (
     
-      <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(155deg, rgba(30, 123, 60, 0.59) 0%, rgba(200, 217, 72, 0.7) 100%)' }}>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-indigo-950 via-purple-900 to-gray-950">
         <div className="text-lg text-white">Loading...</div>
       </div>
     )
@@ -132,7 +132,7 @@ export default function JoinProgramPage() {
 
   if (error || !program) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(155deg, rgba(30, 123, 60, 0.59) 0%, rgba(200, 217, 72, 0.7) 100%)' }}>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-indigo-950 via-purple-900 to-gray-950">
         <div className="text-center">
           <div className="text-white mb-2">{error || 'Program not found'}</div>
           <Link href="/" className="text-white underline hover:text-gray-100">Go Home</Link>

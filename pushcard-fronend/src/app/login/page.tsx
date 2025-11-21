@@ -53,15 +53,15 @@ function LoginContent() {
 
   const handleLogin = async (email: string, password: string) => {
     setIsLoading(true)
+    
     try {
       const { error } = await signIn(email, password)
       if (error) {
         throw new Error(mapAuthError(error))
       }
     } catch (error) {
+      setIsLoading(false) 
       throw error
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -76,28 +76,28 @@ function LoginContent() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-[var(--spacing-md)] py-12" style={{ background: 'linear-gradient(155deg, rgba(30, 123, 60, 0.59) 0%, rgba(200, 217, 72, 0.7) 100%)' }}>
-      {/* Logo */}
-      <div className="mb-8">
-        <img 
-          src="/cashback-logo.png" 
-          alt="Cashback Panama" 
-          className="h-16 w-auto drop-shadow-lg"
-        />
+    <div className="min-h-screen flex flex-col items-center justify-center px-[var(--spacing-md)] py-12 bg-gradient-to-b from-indigo-950 via-purple-900 to-gray-950 relative">
+      {/* Animated background blobs */}
+      <div className="fixed inset-0 opacity-30 pointer-events-none">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
       </div>
       
-      <AuthForm
-        title="Welcome back"
-        subtitle="Sign in to your account"
-        onSubmit={handleLogin}
-        submitText="Sign in"
-        linkText="Don't have an account?"
-        linkHref="/signup"
-        linkLabel="Sign up"
-        loading={isLoading}
-        showForgotPassword={true}
-        onForgotPassword={handleForgotPassword}
-      />
+      {/* Content */}
+      <div className="relative z-10 w-full flex flex-col items-center">
+        <AuthForm
+          title="Welcome back"
+          subtitle="Sign in to your account"
+          onSubmit={handleLogin}
+          submitText="Let's Go"
+          linkText="Don't have an account?"
+          linkHref="/signup"
+          linkLabel="Sign up"
+          loading={isLoading}
+          showForgotPassword={true}
+          onForgotPassword={handleForgotPassword}
+        />
+      </div>
     </div>
   )
 }
@@ -106,7 +106,7 @@ function LoginContent() {
 export default function LoginPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(155deg, rgba(30, 123, 60, 0.59) 0%, rgba(200, 217, 72, 0.7) 100%)' }}>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-indigo-950 via-purple-900 to-gray-950">
         <div className="text-white">Loading...</div>
       </div>
     }>

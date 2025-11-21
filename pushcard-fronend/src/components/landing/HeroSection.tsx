@@ -4,10 +4,24 @@ import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 
 export default function HeroSection() {
-  const [punchCount, setPunchCount] = useState(5)
+  const [punchCount, setPunchCount] = useState(0)
   const [currentStage, setCurrentStage] = useState(0)
   const [phoneOpacity, setPhoneOpacity] = useState(1)
   const sectionRef = useRef<HTMLDivElement>(null)
+
+  // Auto-punch animation for stage 0 only
+  useEffect(() => {
+    if (currentStage === 0) {
+      const interval = setInterval(() => {
+        setPunchCount(prev => {
+          if (prev >= 9) return 0 // Reset after completing
+          return prev + 1
+        })
+      }, 1000) // Add a punch every 1 second
+
+      return () => clearInterval(interval)
+    }
+  }, [currentStage])
 
   useEffect(() => {
     const handleScroll = () => {
@@ -27,20 +41,16 @@ export default function HeroSection() {
         }
       }
       
-    
-      
+      // Update stage based on scroll position
       if (scrollY < 800) {
         setCurrentStage(0)
-        setPunchCount(5)
+        // punchCount is handled by the interval for stage 0
       } else if (scrollY < 1600) {
         setCurrentStage(1)
-        setPunchCount(7)
       } else if (scrollY < 2400) {
         setCurrentStage(2)
-        setPunchCount(8)
       } else {
         setCurrentStage(3)
-        setPunchCount(9)
       }
     }
 
@@ -62,8 +72,8 @@ export default function HeroSection() {
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-7 bg-black rounded-b-3xl z-20" />
           
           {/* Screen */}
-          <div className="w-full h-full bg-gradient-to-b from-gray-900 to-black rounded-[2.5rem] overflow-hidden">
-            {/* Status bar */}
+          <div className="w-full h-full bg-gradient-to-b from-gray-900 to-black rounded-[2.5rem] overflow-hidden relative">
+            {/* Status bar - always visible */}
             <div className="flex justify-between items-center px-8 pt-3 pb-2 text-white text-xs">
               <span>9:41</span>
               <div className="flex gap-1 items-center">
@@ -76,61 +86,92 @@ export default function HeroSection() {
               </div>
             </div>
 
-            {/* Wallet Header */}
-            <div className="px-6 pt-4 pb-3">
-              <div className="flex items-center justify-between">
-                <h2 className="text-white text-2xl font-bold">Wallet</h2>
-                <button className="text-blue-400 text-lg">+</button>
+            {/* Stage 0: Wallet with Auto-punching */}
+            <div 
+              className={`absolute inset-0 pt-14 transition-opacity duration-700 ${
+                currentStage === 0 ? 'opacity-100' : 'opacity-0 pointer-events-none'
+              }`}
+            >
+              {/* Wallet Header */}
+              <div className="px-6 pt-4 pb-3">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-white text-2xl font-bold">Wallet</h2>
+                  <button className="text-blue-400 text-lg">+</button>
+                </div>
+              </div>
+
+              {/* Punchcard in Wallet */}
+              <div className="px-6 pt-2">
+                <div className="bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl p-6 shadow-lg">
+                  {/* Card Header */}
+                  <div className="mb-4">
+                    <h3 className="text-white text-2xl font-bold mb-1">Froyo</h3>
+                    <p className="text-white/80 text-sm">Ice Cream Shop</p>
+                  </div>
+
+                  {/* Punch Grid with Auto Animation */}
+                  <div className="grid grid-cols-5 gap-2 mb-4">
+                    {[...Array(9)].map((_, i) => (
+                      <div
+                        key={i}
+                        className={`aspect-square rounded-lg flex items-center justify-center transition-all duration-500 ${
+                          i < punchCount
+                            ? 'bg-white/90 scale-100'
+                            : 'bg-white/20 border-2 border-dashed border-white/40 scale-95'
+                        }`}
+                        style={{ transitionDelay: `${i * 50}ms` }}
+                      >
+                        {i < punchCount && (
+                          <span className="text-blue-600 text-lg">🍦</span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Progress */}
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="text-white/90 text-sm font-medium uppercase tracking-wide">Progress</span>
+                    <span className="text-white font-bold">{punchCount} of 9</span>
+                  </div>
+
+                  {/* Status */}
+                  <div className="flex items-center justify-between">
+                    <span className="text-white/70 text-xs">STATUS</span>
+                    <span className="text-white text-xs font-semibold">active</span>
+                  </div>
+                </div>
+
+                {/* Scroll hint */}
+                <div className="text-center mt-6">
+                  <p className="text-white/50 text-sm animate-pulse">
+                    Keep scrolling ↓
+                  </p>
+                </div>
               </div>
             </div>
 
-            {/* Punchcard in Wallet */}
-            <div className="px-6 pt-2">
-              <div className="bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl p-6 shadow-lg">
-                {/* Card Header */}
-                <div className="mb-4">
-                  <h3 className="text-white text-2xl font-bold mb-1">Froyo</h3>
-                  <p className="text-white/80 text-sm">Ice Cream Shop</p>
-                </div>
-
-                {/* Punch Grid with Scroll Animation */}
-                <div className="grid grid-cols-5 gap-2 mb-4">
-                  {[...Array(9)].map((_, i) => (
-                    <div
-                      key={i}
-                      className={`aspect-square rounded-lg flex items-center justify-center transition-all duration-500 ${
-                        i < punchCount
-                          ? 'bg-white/90 scale-100'
-                          : 'bg-white/20 border-2 border-dashed border-white/40 scale-95'
-                      }`}
-                      style={{ transitionDelay: `${i * 50}ms` }}
-                    >
-                      {i < punchCount && (
-                        <span className="text-blue-600 text-lg">🍦</span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-
-                {/* Progress */}
-                <div className="flex justify-between items-center mb-3">
-                  <span className="text-white/90 text-sm font-medium uppercase tracking-wide">Progress</span>
-                  <span className="text-white font-bold">{punchCount} of 9</span>
-                </div>
-
-                {/* Status */}
-                <div className="flex items-center justify-between">
-                  <span className="text-white/70 text-xs">STATUS</span>
-                  <span className="text-white text-xs font-semibold">active</span>
-                </div>
+            {/* Stage 1: How It Works - Display GIF */}
+            <div 
+              className={`absolute inset-0 pt-14 transition-opacity duration-700 ${
+                currentStage === 1 ? 'opacity-100' : 'opacity-0 pointer-events-none'
+              }`}
+            >
+              <div className="w-full h-full flex items-center justify-center p-4">
+                <img 
+                  src="/qr-demo.gif" 
+                  alt="QR Code Demo"
+                  className="w-full h-full object-contain"
+                />
               </div>
+            </div>
 
-              {/* Scroll hint */}
-              <div className="text-center mt-6">
-                <p className="text-white/50 text-sm animate-pulse">
-                  Keep scrolling ↓
-                </p>
-              </div>
+            {/* Stage 2, 3: Black Screen */}
+            <div 
+              className={`absolute inset-0 pt-14 transition-opacity duration-700 bg-black ${
+                currentStage > 1 ? 'opacity-100' : 'opacity-0 pointer-events-none'
+              }`}
+            >
+              {/* Empty black screen for now */}
             </div>
           </div>
         </div>
@@ -158,7 +199,7 @@ export default function HeroSection() {
                   </span>
                 </h1>
                 <p className="text-xl sm:text-2xl text-white/80 leading-relaxed max-w-2xl">
-                  Transform your paper punchcards into beautiful digital cards that live in Apple Wallet and Google Wallet. No app downloads needed.
+                  Punches that keep customers coming back.
                 </p>
               </div>
 
@@ -177,31 +218,50 @@ export default function HeroSection() {
               </div>
             </div>
 
-            {/* Stage 1: How It Works - Scan */}
-            <div className="min-h-screen flex flex-col justify-center space-y-8 py-12">
-              <div className="inline-block bg-blue-500/20 backdrop-blur-sm rounded-2xl px-5 py-2 w-fit">
-                <span className="text-blue-300 font-semibold text-sm">Step 1</span>
-              </div>
+            {/* Stage 1: How It Works */}
+            <div className="min-h-screen flex flex-col justify-center space-y-12 py-12">
               <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight">
-                Scan & Save
+                How It Works
               </h2>
-              <p className="text-xl sm:text-2xl text-white/70 leading-relaxed max-w-2xl">
-                Customers scan your QR code at checkout. The loyalty card instantly saves to their Apple Wallet or Google Wallet. No app downloads, no account creation. Just scan and go.
-              </p>
               
-              {/* Stats */}
-              <div className="grid grid-cols-3 gap-8 pt-8">
-                <div>
-                  <div className="text-3xl font-bold text-white mb-2">50,000+</div>
-                  <div className="text-white/60 text-sm">Cards Created</div>
+              <div className="space-y-12">
+                {/* Step 1: Scan */}
+                <div className="flex gap-6 items-start">
+                  <div className="flex-shrink-0">
+                    <div className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border-2 border-white/20 flex items-center justify-center text-white text-2xl font-bold">
+                      1
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-3xl font-bold text-white mb-3">Scan</h3>
+                    <p className="text-xl text-white/70">Customer scans your QR code.</p>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-3xl font-bold text-white mb-2">2,500+</div>
-                  <div className="text-white/60 text-sm">Businesses</div>
+
+                {/* Step 2: Earn */}
+                <div className="flex gap-6 items-start">
+                  <div className="flex-shrink-0">
+                    <div className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border-2 border-white/20 flex items-center justify-center text-white text-2xl font-bold">
+                      2
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-3xl font-bold text-white mb-3">Earn</h3>
+                    <p className="text-xl text-white/70">Punches add instantly.</p>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-3xl font-bold text-white mb-2">Zero</div>
-                  <div className="text-white/60 text-sm">Paper Wasted 🌱</div>
+
+                {/* Step 3: Redeem */}
+                <div className="flex gap-6 items-start">
+                  <div className="flex-shrink-0">
+                    <div className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border-2 border-white/20 flex items-center justify-center text-white text-2xl font-bold">
+                      3
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-3xl font-bold text-white mb-3">Redeem</h3>
+                    <p className="text-xl text-white/70">Reward applied automatically.</p>
+                  </div>
                 </div>
               </div>
             </div>

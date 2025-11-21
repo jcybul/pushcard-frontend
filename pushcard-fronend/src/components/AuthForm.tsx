@@ -35,8 +35,7 @@ export function AuthForm({
 }: AuthFormProps) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [firstName, setFirstName] = useState('')
-  const [lastName, setLastName] = useState('')
+  const [fullName, setFullName] = useState('')
   const [birthdate, setBirthdate] = useState('')
   const [error, setError] = useState('')
   const [info, setInfo] = useState('')
@@ -64,13 +63,25 @@ export function AuthForm({
       return
     }
 
-    if (showAdditionalFields && (!firstName || !lastName || !birthdate)) {
-      setError('Please fill in all fields')
+    if (showAdditionalFields && !fullName) {
+      setError('Please enter your full name')
       return
     }
 
     try {
-      const additionalData = showAdditionalFields ? { firstName, lastName, birthdate } : undefined
+      let additionalData = undefined
+      if (showAdditionalFields && fullName) {
+        // Split full name into first and last name
+        const nameParts = fullName.trim().split(' ')
+        const firstName = nameParts[0] || ''
+        const lastName = nameParts.slice(1).join(' ') || ''
+        
+        additionalData = { 
+          firstName, 
+          lastName, 
+          birthdate: birthdate || undefined 
+        }
+      }
       await onSubmit(email, password, additionalData)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
@@ -100,66 +111,34 @@ export function AuthForm({
 
   return (
     <div className="w-full max-w-md">
-      <Card className="shadow-card-hover">
+      <Card className="bg-black/40 backdrop-blur-xl shadow-2xl border-2 border-white/10">
         <CardHeader className="text-center">
-          <CardTitle className="text-h1">{title}</CardTitle>
-          <CardDescription className="text-base">{subtitle}</CardDescription>
+          <CardTitle className="text-4xl font-bold text-white mb-2">{title}</CardTitle>
+          <CardDescription className="text-base text-white/70">{subtitle}</CardDescription>
         </CardHeader>
         
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-[var(--spacing-md)]">
             {showAdditionalFields && (
-              <>
-                <div>
-                  <label htmlFor="first-name" className="block text-sm font-medium mb-1">
-                    First Name
-                  </label>
-                  <Input
-                    id="first-name"
-                    name="firstName"
-                    type="text"
-                    autoComplete="given-name"
-                    required={showAdditionalFields}
-                    placeholder="John"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                  />
-                </div>
-                
-                <div>
-                  <label htmlFor="last-name" className="block text-sm font-medium mb-1">
-                    Last Name
-                  </label>
-                  <Input
-                    id="last-name"
-                    name="lastName"
-                    type="text"
-                    autoComplete="family-name"
-                    required={showAdditionalFields}
-                    placeholder="Doe"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                  />
-                </div>
-                
-                <div>
-                  <label htmlFor="birthdate" className="block text-sm font-medium mb-1">
-                    Birth Date
-                  </label>
-                  <Input
-                    id="birthdate"
-                    name="birthdate"
-                    type="date"
-                    required={showAdditionalFields}
-                    value={birthdate}
-                    onChange={(e) => setBirthdate(e.target.value)}
-                  />
-                </div>
-              </>
+              <div>
+                <label htmlFor="full-name" className="block text-sm font-medium mb-1 text-white">
+                  Full Name
+                </label>
+                <Input
+                  id="full-name"
+                  name="fullName"
+                  type="text"
+                  autoComplete="name"
+                  required={showAdditionalFields}
+                  placeholder="John Doe"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                />
+              </div>
             )}
             
             <div>
-              <label htmlFor="email-address" className="block text-sm font-medium mb-1">
+              <label htmlFor="email-address" className="block text-sm font-medium mb-1 text-white">
                 Email address
               </label>
               <Input
@@ -173,8 +152,23 @@ export function AuthForm({
               />
             </div>
             
+            {showAdditionalFields && (
+              <div>
+                <label htmlFor="birthdate" className="block text-sm font-medium mb-1 text-white">
+                  Birth Date <span className="text-white/50 font-normal">(optional)</span>
+                </label>
+                <Input
+                  id="birthdate"
+                  name="birthdate"
+                  type="date"
+                  value={birthdate}
+                  onChange={(e) => setBirthdate(e.target.value)}
+                />
+              </div>
+            )}
+            
             <div>
-              <label htmlFor="password" className="block text-sm font-medium mb-1">
+              <label htmlFor="password" className="block text-sm font-medium mb-1 text-white">
                 Password
               </label>
               <Input
@@ -202,19 +196,19 @@ export function AuthForm({
 
             <Button
               type="submit"
-              variant="gradient"
+              variant="primary"
               size="lg"
               disabled={loading}
-              className="w-full"
+              className="w-full bg-black hover:bg-gray-900 text-white border-0"
             >
               {loading ? 'Loading...' : submitText}
             </Button>
 
             <div className="text-center text-sm">
-              <span className="text-[var(--color-text-secondary)]">{linkText} </span>
+              <span className="text-white/70">{linkText} </span>
               <Link
                 href={linkHref}
-                className="font-medium text-gradient-rainbow hover:opacity-80"
+                className="font-medium text-blue-300 hover:text-blue-200 transition-colors"
               >
                 {linkLabel}
               </Link>
@@ -225,7 +219,7 @@ export function AuthForm({
                 <button
                   type="button"
                   onClick={handleForgotClick}
-                  className="text-gray-600 hover:text-gray-800 underline"
+                  className="text-white/60 hover:text-white/90 underline transition-colors"
                   disabled={loading}
                 >
                   Forgot password?

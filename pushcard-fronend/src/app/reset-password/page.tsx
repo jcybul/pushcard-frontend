@@ -50,21 +50,28 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-[var(--spacing-md)] py-12" style={{ background: 'linear-gradient(155deg, rgba(30, 123, 60, 0.59) 0%, rgba(200, 217, 72, 0.7) 100%)' }}>
-      <div className="w-full max-w-md">
-        <Card className="shadow-card-hover">
+    <div className="min-h-screen flex items-center justify-center px-[var(--spacing-md)] py-12 bg-gradient-to-b from-indigo-950 via-purple-900 to-gray-950 relative">
+      {/* Animated background blobs */}
+      <div className="fixed inset-0 opacity-30 pointer-events-none">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+      </div>
+      
+      {/* Content */}
+      <div className="relative z-10 w-full max-w-md">
+        <Card className="bg-black/40 backdrop-blur-xl shadow-2xl border-2 border-white/10">
           <CardHeader className="text-center">
-            <CardTitle className="text-h1">Set a new password</CardTitle>
-            <CardDescription className="text-base">Enter and confirm your new password</CardDescription>
+            <CardTitle className="text-4xl font-bold text-white mb-2">Set a new password</CardTitle>
+            <CardDescription className="text-base text-white/70">Enter and confirm your new password</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleUpdate} className="space-y-[var(--spacing-md)]">
               <div>
-                <label htmlFor="new-password" className="block text-sm font-medium mb-1">New Password</label>
+                <label htmlFor="new-password" className="block text-sm font-medium mb-1 text-white">New Password</label>
                 <Input id="new-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required />
               </div>
               <div>
-                <label htmlFor="confirm-password" className="block text-sm font-medium mb-1">Confirm Password</label>
+                <label htmlFor="confirm-password" className="block text-sm font-medium mb-1 text-white">Confirm Password</label>
                 <Input id="confirm-password" type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} placeholder="••••••••" required />
               </div>
 

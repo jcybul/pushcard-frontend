@@ -462,4 +462,23 @@ button, a, [role="button"] {
   body {
     @apply bg-background text-foreground;
   }
+  
+  /* Style date input placeholder to match other inputs */
+  input[type="date"]::-webkit-datetime-edit-text,
+  input[type="date"]::-webkit-datetime-edit-month-field,
+  input[type="date"]::-webkit-datetime-edit-day-field,
+  input[type="date"]::-webkit-datetime-edit-year-field {
+    color: rgb(156 163 175); /* gray-400 */
+  }
+  
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.5);
+    opacity: 0.7;
+  }
+  
+  /* Firefox */
+  input[type="date"]::-moz-placeholder {
+    color: rgb(156 163 175);
+    opacity: 1;
+  }
 }
