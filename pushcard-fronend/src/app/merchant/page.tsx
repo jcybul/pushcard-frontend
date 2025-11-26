@@ -359,7 +359,7 @@ export default function MerchantDashboard() {
               {programs.map((program: any) => {
                 const activeCards = program.active_cards || 0
                 const totalRedemptions = program.total_redemptions ?? program.total_redepmtions ?? 0
-                const totalPunches = program.total_punches || 892 // Placeholder for now
+                const totalPunches = program.total_punches || 0
                 const punchesRequired = program.punches_required || 5
                 
                 // Calculate completion rate: (redemptions / active_cards) * 100
@@ -419,10 +419,9 @@ export default function MerchantDashboard() {
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
                           <div 
-                            className="h-full rounded-full transition-all duration-500"
+                            className="h-full rounded-full transition-all duration-500 bg-black"
                             style={{ 
-                              width: `${completionRate}%`,
-                              background: 'linear-gradient(90deg, #667eea 0%, #764ba2 100%)'
+                              width: `${completionRate}%`
                             }}
                           />
                         </div>
