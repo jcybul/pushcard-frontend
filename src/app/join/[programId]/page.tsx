@@ -192,6 +192,77 @@ export default function JoinProgramPage() {
             </p>
           </div>
 
+          {/* Progress Steps - Mobile Optimized */}
+          <div className="w-full mb-6 flex justify-center">
+            <div className="flex items-center gap-2">
+              <div className="flex flex-col items-center gap-1.5">
+                <div
+                  className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-extrabold bg-white ring-4 ring-white/40"
+                  style={{ color: program.foreground_color || '#000000' }}
+                >
+                  1
+                </div>
+                <span
+                  className="text-xs font-bold whitespace-nowrap"
+                  style={{ color: program.foreground_color || '#ffffff' }}
+                >
+                  Create account
+                </span>
+              </div>
+              
+              <div className="h-0.5 w-6 rounded-full bg-white/20 mb-4" />
+              
+              <div className="flex flex-col items-center gap-1.5">
+                <div
+                  className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-extrabold bg-white/30 backdrop-blur-md border border-white/40"
+                  style={{ color: program.foreground_color || '#ffffff', opacity: 0.6 }}
+                >
+                  2
+                </div>
+                <span
+                  className="text-xs font-bold whitespace-nowrap"
+                  style={{ color: program.foreground_color || '#ffffff', opacity: 0.5 }}
+                >
+                  Add to Wallet
+                </span>
+              </div>
+
+              <div className="h-0.5 w-6 rounded-full bg-white/20 mb-4" />
+
+              <div className="flex flex-col items-center gap-1.5">
+                <div
+                  className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-extrabold bg-white/30 backdrop-blur-md border border-white/40"
+                  style={{ color: program.foreground_color || '#ffffff', opacity: 0.6 }}
+                >
+                  3
+                </div>
+                <span
+                  className="text-xs font-bold whitespace-nowrap"
+                  style={{ color: program.foreground_color || '#ffffff', opacity: 0.5 }}
+                >
+                  Show card
+                </span>
+              </div>
+
+              <div className="h-0.5 w-6 rounded-full bg-white/20 mb-4" />
+
+              <div className="flex flex-col items-center gap-1.5">
+                <div
+                  className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-extrabold bg-white/30 backdrop-blur-md border border-white/40"
+                  style={{ color: program.foreground_color || '#ffffff', opacity: 0.6 }}
+                >
+                  4
+                </div>
+                <span
+                  className="text-xs font-bold whitespace-nowrap"
+                  style={{ color: program.foreground_color || '#ffffff', opacity: 0.5 }}
+                >
+                  Earn punches
+                </span>
+              </div>
+            </div>
+          </div>
+
                    {/* Form Card - Glass Morphism */}
                    <div className="w-full rounded-3xl bg-white/95 backdrop-blur-xl shadow-2xl border border-white/20 p-6 sm:p-8 animate-slide-up">
             
