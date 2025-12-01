@@ -15,7 +15,8 @@ export default function JoinProgramPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [program, setProgram] = useState<Program | null>(null)
-  const [name, setName] = useState('')
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [formError, setFormError] = useState<string | null>(null)
@@ -102,14 +103,12 @@ export default function JoinProgramPage() {
     e.preventDefault()
     setFormError(null)
     if (!program) return
-    if (!name || !email || !password) {
-      setFormError('Please fill in name, email and password')
+    if (!firstName || !lastName || !email || !password) {
+      setFormError('Please fill in first name, last name, email and password')
       return
     }
     setSubmitting(true)
     try {
-      const [firstName, ...rest] = name.trim().split(' ')
-      const lastName = rest.join(' ')
       const { error: signUpError } = await signUp(email, password, { firstName, lastName })
       if (signUpError) throw new Error(signUpError.message)
 
@@ -287,20 +286,38 @@ export default function JoinProgramPage() {
                   </div>
                 )}
                 
-                <div>
-                  <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
-                    Full Name
-                  </label>
-                  <input
-                    id="name"
-                    name="name"
-                    type="text"
-                    placeholder="John Doe"
-                    required
-                    className="w-full h-12 px-4 rounded-xl border-2 border-gray-200 bg-white placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                  />
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="firstName" className="block text-sm font-semibold text-gray-700 mb-2">
+                      First Name
+                    </label>
+                    <input
+                      id="firstName"
+                      name="firstName"
+                      type="text"
+                      placeholder="Jose"
+                      required
+                      className="w-full h-12 px-4 rounded-xl border-2 border-gray-200 bg-white placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                    />
+                  </div>
+                  
+                  <div>
+                    <label htmlFor="lastName" className="block text-sm font-semibold text-gray-700 mb-2">
+                      Last Name
+                    </label>
+                    <input
+                      id="lastName"
+                      name="lastName"
+                      type="text"
+                      placeholder="Gonzales"
+                      required
+                      className="w-full h-12 px-4 rounded-xl border-2 border-gray-200 bg-white placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                    />
+                  </div>
                 </div>
 
                 <div>
