@@ -4,9 +4,10 @@ import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 
 export default function HeroSection() {
-  const [punchCount, setPunchCount] = useState(0)
+  const [punchCount, setPunchCount] = useState(4)
   const [currentStage, setCurrentStage] = useState(0)
-  const [phoneOpacity, setPhoneOpacity] = useState(1)
+  const [isPhoneFixed, setIsPhoneFixed] = useState(true)
+  const [showPhone, setShowPhone] = useState(true)
   const sectionRef = useRef<HTMLDivElement>(null)
 
   // Auto-punch animation for stage 0 only
@@ -14,7 +15,7 @@ export default function HeroSection() {
     if (currentStage === 0) {
       const interval = setInterval(() => {
         setPunchCount(prev => {
-          if (prev >= 9) return 0 // Reset after completing
+          if (prev >= 9) return 4 // Reset to 4 after completing
           return prev + 1
         })
       }, 1000) // Add a punch every 1 second
@@ -26,28 +27,35 @@ export default function HeroSection() {
   useEffect(() => {
     const handleScroll = () => {
       const scrollY = window.scrollY
+      const windowHeight = window.innerHeight
       
-      // Fade out phone gradually as we approach the footer
+      // Calculate section bottom
       if (sectionRef.current) {
         const sectionBottom = sectionRef.current.offsetTop + sectionRef.current.offsetHeight
-        const distanceFromBottom = sectionBottom - (scrollY + window.innerHeight)
+        const phoneHeight = 650 + 80 // phone height + top margin
         
-        // Start fading out 300px before the footer
-        if (distanceFromBottom < 300) {
-          const opacity = Math.max(0, distanceFromBottom / 300)
-          setPhoneOpacity(opacity)
+        // Hide phone when it would overlap the footer (700px before section ends)
+        if (scrollY + windowHeight + phoneHeight > sectionBottom + 200) {
+          setShowPhone(false)
         } else {
-          setPhoneOpacity(1)
+          setShowPhone(true)
         }
       }
       
+      // Switch from fixed to absolute after "Why It Works" section (after 2100px)
+      if (scrollY >= 2100) {
+        setIsPhoneFixed(false)
+      } else {
+        setIsPhoneFixed(true)
+      }
+      
       // Update stage based on scroll position
-      if (scrollY < 800) {
+      if (scrollY < 500) {
         setCurrentStage(0)
         // punchCount is handled by the interval for stage 0
-      } else if (scrollY < 1600) {
+      } else if (scrollY < 1300) {
         setCurrentStage(1)
-      } else if (scrollY < 2400) {
+      } else if (scrollY < 2100) {
         setCurrentStage(2)
       } else {
         setCurrentStage(3)
@@ -60,12 +68,18 @@ export default function HeroSection() {
   }, [])
 
   return (
-    <>
-      {/* iPhone - Fades out smoothly as you approach footer */}
-      <div 
-        className="fixed top-20 right-8 lg:right-32 z-50 hidden lg:block transition-opacity duration-200"
-        style={{ opacity: phoneOpacity }}
-      >
+    <section ref={sectionRef} className="relative min-h-[300vh] px-4 py-20 bg-gradient-to-b from-indigo-950 via-purple-900 to-gray-950">
+      {/* Animated background blobs */}
+      <div className="fixed inset-0 opacity-30 pointer-events-none">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl" />
+      </div>
+
+      {/* iPhone - Fixed for first 3 sections, then absolute, hidden near footer */}
+      {showPhone && (
+        <div 
+          className={`${isPhoneFixed ? 'fixed' : 'absolute'} ${isPhoneFixed ? 'top-20' : 'top-[2100px]'} right-8 lg:right-32 z-50 hidden lg:block transition-all duration-300`}
+        >
         {/* iPhone Mockup */}
         <div className="relative w-[320px] h-[650px] bg-black rounded-[3rem] p-3 shadow-2xl">
           {/* iPhone notch */}
@@ -175,17 +189,11 @@ export default function HeroSection() {
             </div>
           </div>
         </div>
-      </div>
-
-      <section ref={sectionRef} className="relative min-h-[500vh] px-4 py-20 bg-gradient-to-b from-indigo-950 via-purple-900 to-gray-950">
-        {/* Animated background blobs */}
-        <div className="fixed inset-0 opacity-30 pointer-events-none">
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl" />
-          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl" />
         </div>
+      )}
 
-        {/* Scrollable Content - Left Side */}
-        <div className="relative z-10 max-w-7xl mx-auto w-full">
+      {/* Scrollable Content - Left Side */}
+      <div className="relative z-10 max-w-7xl mx-auto w-full">
           <div className="max-w-5xl lg:pr-[420px]">
             
             {/* Stage 0: Hero Introduction */}
@@ -199,7 +207,7 @@ export default function HeroSection() {
                   </span>
                 </h1>
                 <p className="text-xl sm:text-2xl text-white/80 leading-relaxed max-w-2xl">
-                  Punches that keep customers coming back.
+                  Your punchcard in every customer's pocket.
                 </p>
               </div>
 
@@ -247,7 +255,7 @@ export default function HeroSection() {
                   </div>
                   <div>
                     <h3 className="text-3xl font-bold text-white mb-3">Earn</h3>
-                    <p className="text-xl text-white/70">Punches add instantly.</p>
+                    <p className="text-xl text-white/70">They join your program and start collecting punches.</p>
                   </div>
                 </div>
 
@@ -260,106 +268,49 @@ export default function HeroSection() {
                   </div>
                   <div>
                     <h3 className="text-3xl font-bold text-white mb-3">Redeem</h3>
-                    <p className="text-xl text-white/70">Reward applied automatically.</p>
+                    <p className="text-xl text-white/70">They collect rewards; the system applies them automatically.</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Stage 2: Collect Stamps */}
-            <div className="min-h-screen flex flex-col justify-center space-y-8 py-12">
-              <div className="inline-block bg-purple-500/20 backdrop-blur-sm rounded-2xl px-5 py-2 w-fit">
-                <span className="text-purple-300 font-semibold text-sm">Step 2</span>
-              </div>
+            {/* Stage 2: Why It Works */}
+            <div className="min-h-screen flex flex-col justify-center space-y-12 py-12">
               <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight">
-                Collect Stamps
+                Why It Works
               </h2>
-              <p className="text-xl sm:text-2xl text-white/70 leading-relaxed max-w-2xl">
-                Each purchase automatically adds a stamp to their digital card. Watch the progress fill up in real-time. Your customers see their rewards growing with every visit.
-              </p>
               
-              {/* Features */}
-              <div className="space-y-4 pt-8">
-                <div className="flex gap-4 items-start">
-                  <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0 mt-1">
-                    <svg className="w-4 h-4 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="text-white font-semibold text-lg mb-1">Real-time Updates</h3>
-                    <p className="text-white/60">Cards update instantly in your customer's wallet</p>
-                  </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Feature 1: Captures Repeat Revenue */}
+                <div className="bg-white/5 backdrop-blur-md rounded-2xl p-8 border border-white/10 hover:bg-white/10 transition-all duration-300">
+                  <h3 className="text-2xl font-bold text-white mb-3">Captures Repeat Revenue</h3>
+                  <p className="text-lg text-white/70">Turns one-time buyers into recurring buyers.</p>
                 </div>
-                <div className="flex gap-4 items-start">
-                  <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0 mt-1">
-                    <svg className="w-4 h-4 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="text-white font-semibold text-lg mb-1">Custom Branding</h3>
-                    <p className="text-white/60">Each card matches your brand colors and style</p>
-                  </div>
+
+                {/* Feature 2: Effortless for Staff */}
+                <div className="bg-white/5 backdrop-blur-md rounded-2xl p-8 border border-white/10 hover:bg-white/10 transition-all duration-300">
+                  <h3 className="text-2xl font-bold text-white mb-3">Effortless for Staff</h3>
+                  <p className="text-lg text-white/70">Zero apps. Zero training. Zero friction.</p>
                 </div>
-                <div className="flex gap-4 items-start">
-                  <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0 mt-1">
-                    <svg className="w-4 h-4 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="text-white font-semibold text-lg mb-1">Track Everything</h3>
-                    <p className="text-white/60">Analytics dashboard shows visit patterns and trends</p>
-                  </div>
+
+                {/* Feature 3: Always On */}
+                <div className="bg-white/5 backdrop-blur-md rounded-2xl p-8 border border-white/10 hover:bg-white/10 transition-all duration-300">
+                  <h3 className="text-2xl font-bold text-white mb-3">Always On</h3>
+                  <p className="text-lg text-white/70">Real-time punches, rewards, and analytics.</p>
+                </div>
+
+                {/* Feature 4: Wallet-Native Engagement */}
+                <div className="bg-white/5 backdrop-blur-md rounded-2xl p-8 border border-white/10 hover:bg-white/10 transition-all duration-300">
+                  <h3 className="text-2xl font-bold text-white mb-3">Wallet-Native Engagement</h3>
+                  <p className="text-lg text-white/70">Card lives on the lock screen. High visibility, high usage.</p>
                 </div>
               </div>
             </div>
 
-            {/* Stage 3: Get Rewarded */}
-            <div className="min-h-screen flex flex-col justify-center space-y-8 py-12">
-              <div className="inline-block bg-pink-500/20 backdrop-blur-sm rounded-2xl px-5 py-2 w-fit">
-                <span className="text-pink-300 font-semibold text-sm">Step 3</span>
-              </div>
-              <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight">
-                Get Rewarded
-              </h2>
-              <p className="text-xl sm:text-2xl text-white/70 leading-relaxed max-w-2xl">
-                Card complete! Customers redeem their reward right from their wallet. Simple, satisfying, and keeps them coming back for more.
-              </p>
-              
-              <div className="pt-8 space-y-6">
-                <div className="glass-card-dark rounded-2xl p-6 border border-white/10">
-                  <p className="text-white/80 text-lg italic leading-relaxed mb-4">
-                    "We've seen a 40% increase in repeat customers since switching to digital punchcards. Setup was instant!"
-                  </p>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
-                      <span className="text-white font-bold">M</span>
-                    </div>
-                    <div>
-                      <p className="text-white font-semibold">Maria Rodriguez</p>
-                      <p className="text-white/60 text-sm">Café Luna, Panama City</p>
-                    </div>
-                  </div>
-                </div>
-                
-                <Link
-                  href="/merchant"
-                  className="inline-flex items-center gap-2 text-white/60 hover:text-white/90 text-sm group transition-colors"
-                >
-                  Store owners: Sign in to dashboard
-                  <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </Link>
-              </div>
-            </div>
 
-          </div>
         </div>
-      </section>
-    </>
+      </div>
+    </section>
   )
 }
 

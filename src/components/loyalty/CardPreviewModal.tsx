@@ -113,7 +113,7 @@ export function CardPreviewModal({ isOpen, onClose, card, programId, userId }: C
   
       if (walletType === 'apple') {
         const passResponse = await fetch(
-          `${API_URL}/api/passes/apple/get_or_create/?user_id=${userId}&program_id=${useProgramId}`,
+          `${API_URL}/api/passes/apple/get_or_create/?program_id=${useProgramId}`,
           {
             method: 'GET',
             headers: {
@@ -145,7 +145,7 @@ export function CardPreviewModal({ isOpen, onClose, card, programId, userId }: C
         }, 2000)
       } else {
         const googleResponse = await fetch(
-          `${API_URL}/api/passes/google/get_or_create/?user_id=${userId}&program_id=${useProgramId}`,
+          `${API_URL}/api/passes/google/get_or_create/?program_id=${useProgramId}`,
           {
             method: 'GET',
             headers: {

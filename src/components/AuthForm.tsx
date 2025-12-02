@@ -35,7 +35,8 @@ export function AuthForm({
 }: AuthFormProps) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [fullName, setFullName] = useState('')
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
   const [birthdate, setBirthdate] = useState('')
   const [error, setError] = useState('')
   const [info, setInfo] = useState('')
@@ -63,19 +64,14 @@ export function AuthForm({
       return
     }
 
-    if (showAdditionalFields && !fullName) {
-      setError('Please enter your full name')
+    if (showAdditionalFields && (!firstName || !lastName)) {
+      setError('Please enter your first and last name')
       return
     }
 
     try {
       let additionalData = undefined
-      if (showAdditionalFields && fullName) {
-        // Split full name into first and last name
-        const nameParts = fullName.trim().split(' ')
-        const firstName = nameParts[0] || ''
-        const lastName = nameParts.slice(1).join(' ') || ''
-        
+      if (showAdditionalFields) {
         additionalData = { 
           firstName, 
           lastName, 
@@ -120,20 +116,38 @@ export function AuthForm({
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-[var(--spacing-md)]">
             {showAdditionalFields && (
-              <div>
-                <label htmlFor="full-name" className="block text-sm font-medium mb-1 text-white">
-                  Full Name
-                </label>
-                <Input
-                  id="full-name"
-                  name="fullName"
-                  type="text"
-                  autoComplete="name"
-                  required={showAdditionalFields}
-                  placeholder="John Doe"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="first-name" className="block text-sm font-medium mb-1 text-white">
+                    First Name
+                  </label>
+                  <Input
+                    id="first-name"
+                    name="firstName"
+                    type="text"
+                    autoComplete="given-name"
+                    required={showAdditionalFields}
+                    placeholder="Jose"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="last-name" className="block text-sm font-medium mb-1 text-white">
+                    Last Name
+                  </label>
+                  <Input
+                    id="last-name"
+                    name="lastName"
+                    type="text"
+                    autoComplete="family-name"
+                    required={showAdditionalFields}
+                    placeholder="Gonzales"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                  />
+                </div>
               </div>
             )}
             

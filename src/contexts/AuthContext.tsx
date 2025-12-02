@@ -97,7 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signUp = async (email: string, password: string, additionalData?: { firstName?: string; lastName?: string; birthdate?: string }) => {
-    const { error } = await supabase.auth.signUp({
+    const { error, data } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -108,6 +108,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } : undefined
       }
     })
+    
+    if (error) {
+      return { error }
+    }
+
+    // Update the user profile in the backend database
+    if (data.user && additionalData) {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        const token = session?.access_token
+
+        if (token) {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/auth/update_user_profile`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              first_name: additionalData.firstName,
+              last_name: additionalData.lastName,
+              birth_date: additionalData.birthdate
+            })
+          })
+
+          if (!response.ok) {
+            console.error('Failed to update user profile:', await response.text())
+          }
+        }
+      } catch (err) {
+        console.error('Failed to update user profile in backend:', err)
+      }
+    }
+
     return { error }
   }
 

@@ -35,71 +35,72 @@ export default function MerchantDashboard() {
     }
   }, [user, loading, isCustomer, router])
 
-//  Load merchant programs
-    useEffect(() => {
-        const loadPrograms = async () => {
-        if (!user || loading || userRole !== 'merchant') return
-        
-        setProgramsLoading(true)
-        try {
-            const { data: { session } } = await supabase.auth.getSession()
-            const token = session?.access_token
-
-            if (!token) {
-            console.error('No access token found')
-            setProgramsLoading(false)
-            return
-            }
-            
-            const response = await fetch(`${API_URL}/api/program/merchant_user_programs`, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json',
-            },
-            mode: 'cors',
-            })
-            
-            if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`)
-            }
-            
-            const data = await response.json()
-            // Normalize response: API returns { programs: { merchantId: { merchant_info, programs: [] } }, success }
-            let normalizedPrograms: any[] = []
-            const programsField = (data as any)?.programs
-            if (programsField && typeof programsField === 'object' && !Array.isArray(programsField)) {
-              const grouped: any[] = []
-              for (const merchantEntry of Object.values(programsField) as any[]) {
-                const merchantInfo = merchantEntry?.merchant_info || {}
-                const items = Array.isArray(merchantEntry?.programs) ? merchantEntry.programs : []
-                const programsForMerchant = items.map((p: any) => ({
-                  ...p,
-                  brand_color: merchantInfo.brand_color,
-                  merchant_name: merchantInfo.name,
-                  merchant_logo_url: merchantInfo.logo_url,
-                  // Future-ready counts if API provides them per program or per merchant entry
-                  active_cards: p?.active_cards ?? merchantEntry?.active_cards,
-                  total_redemptions: p?.total_redemptions ?? p?.total_redepmtions ?? merchantEntry?.total_redemptions ?? merchantEntry?.total_redepmtions,
-                }))
-                grouped.push({ merchant_info: merchantInfo, programs: programsForMerchant })
-                normalizedPrograms.push(...programsForMerchant)
-              }
-              setGroupedPrograms(grouped)
-            } else if (Array.isArray(programsField)) {
-              normalizedPrograms = programsField
-            } else if (Array.isArray(data)) {
-              normalizedPrograms = data
-            }
-            setPrograms(normalizedPrograms)
-            
-        } catch (error) {
-            console.error('Failed to load programs:', error)
-        } finally {
-            setProgramsLoading(false)
-        }
-    }
+  // Extract loadPrograms as a standalone function
+  const loadPrograms = async () => {
+    if (!user || loading || userRole !== 'merchant') return
     
+    setProgramsLoading(true)
+    try {
+        const { data: { session } } = await supabase.auth.getSession()
+        const token = session?.access_token
+
+        if (!token) {
+        console.error('No access token found')
+        setProgramsLoading(false)
+        return
+        }
+        
+        const response = await fetch(`${API_URL}/api/program/merchant_user_programs`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+        },
+        mode: 'cors',
+        })
+        
+        if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+        }
+        
+        const data = await response.json()
+        // Normalize response: API returns { programs: { merchantId: { merchant_info, programs: [] } }, success }
+        let normalizedPrograms: any[] = []
+        const programsField = (data as any)?.programs
+        if (programsField && typeof programsField === 'object' && !Array.isArray(programsField)) {
+          const grouped: any[] = []
+          for (const merchantEntry of Object.values(programsField) as any[]) {
+            const merchantInfo = merchantEntry?.merchant_info || {}
+            const items = Array.isArray(merchantEntry?.programs) ? merchantEntry.programs : []
+            const programsForMerchant = items.map((p: any) => ({
+              ...p,
+              brand_color: merchantInfo.brand_color,
+              merchant_name: merchantInfo.name,
+              merchant_logo_url: merchantInfo.logo_url,
+              // Future-ready counts if API provides them per program or per merchant entry
+              active_cards: p?.active_cards ?? merchantEntry?.active_cards,
+              total_redemptions: p?.total_redemptions ?? p?.total_redepmtions ?? merchantEntry?.total_redemptions ?? merchantEntry?.total_redepmtions,
+            }))
+            grouped.push({ merchant_info: merchantInfo, programs: programsForMerchant })
+            normalizedPrograms.push(...programsForMerchant)
+          }
+          setGroupedPrograms(grouped)
+        } else if (Array.isArray(programsField)) {
+          normalizedPrograms = programsField
+        } else if (Array.isArray(data)) {
+          normalizedPrograms = data
+        }
+        setPrograms(normalizedPrograms)
+        
+    } catch (error) {
+        console.error('Failed to load programs:', error)
+    } finally {
+        setProgramsLoading(false)
+    }
+  }
+
+  //  Load merchant programs on mount
+  useEffect(() => {
     loadPrograms()
   }, [user, loading, userRole])
 
@@ -154,6 +155,9 @@ export default function MerchantDashboard() {
         type: 'success', 
         text: `✓ Punch added! ${data.remaining ? `${data.remaining} more needed.` : 'Card complete!'}`
       })
+      
+      // Refresh programs stats after successful punch
+      await loadPrograms()
       
       setTimeout(() => setMessage(null), 5000)
       
@@ -221,6 +225,9 @@ export default function MerchantDashboard() {
       
       setPendingCardId(null)
       //setRedeemCardData(null)
+      
+      // Refresh programs stats after successful redemption
+      await loadPrograms()
       
       setTimeout(() => setMessage(null), 5000)
       
@@ -359,7 +366,7 @@ export default function MerchantDashboard() {
               {programs.map((program: any) => {
                 const activeCards = program.active_cards || 0
                 const totalRedemptions = program.total_redemptions ?? program.total_redepmtions ?? 0
-                const totalPunches = program.total_punches || 892 // Placeholder for now
+                const totalPunches = program.total_punches || 0
                 const punchesRequired = program.punches_required || 5
                 
                 // Calculate completion rate: (redemptions / active_cards) * 100
@@ -419,10 +426,9 @@ export default function MerchantDashboard() {
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
                           <div 
-                            className="h-full rounded-full transition-all duration-500"
+                            className="h-full rounded-full transition-all duration-500 bg-black"
                             style={{ 
-                              width: `${completionRate}%`,
-                              background: 'linear-gradient(90deg, #667eea 0%, #764ba2 100%)'
+                              width: `${completionRate}%`
                             }}
                           />
                         </div>
