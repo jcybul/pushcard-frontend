@@ -397,7 +397,7 @@ export function CardPreviewModal({ isOpen, onClose, card, programId, userId }: C
             <div className="px-4 py-6">
               <div className="text-center mb-6 mt-4">
                 <h3 className="text-xl font-bold mb-1">Join {programInfo.merchant_name}</h3>
-                <p className="text-sm text-gray-600">Add your card to start earning rewards</p>
+                <p className="text-lg font-semibold text-gray-800">{programInfo.name}</p>
               </div>
 
               <div className="bg-white rounded-xl p-4 shadow-sm mb-4">
