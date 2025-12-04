@@ -79,7 +79,7 @@ export default function DashboardPage() {
           
           if (expiredCardsForProgram.length > 1) {
             // Sort by created_at descending and only keep the first (most recent)
-            const mostRecentExpired = expiredCardsForProgram.sort((a, b) => 
+            const mostRecentExpired = expiredCardsForProgram.sort((a: { created_at: string | number | Date }, b: { created_at: string | number | Date }) => 
               new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
             )[0]
             
