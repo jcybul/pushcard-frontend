@@ -57,6 +57,7 @@ export default function DashboardPage() {
         const allCards = data.cards || []
         
         // Filter out expired cards if a newer active card exists for the same program
+        // Also, if multiple expired cards exist for the same program, only keep the most recent one
         const filteredCards = allCards.filter((card: PunchCard) => {
           // If card is not expired, always include it
           if (card.status !== 'expired') return true
@@ -68,7 +69,24 @@ export default function DashboardPage() {
             otherCard.id !== card.id
           )
           
-          return !hasActiveCardForProgram
+          if (hasActiveCardForProgram) return false
+          
+          // If there are multiple expired cards for the same program, only keep the most recent one
+          const expiredCardsForProgram = allCards.filter((otherCard: PunchCard) => 
+            otherCard.program_id === card.program_id && 
+            otherCard.status === 'expired'
+          )
+          
+          if (expiredCardsForProgram.length > 1) {
+            // Sort by created_at descending and only keep the first (most recent)
+            const mostRecentExpired = expiredCardsForProgram.sort((a, b) => 
+              new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+            )[0]
+            
+            return card.id === mostRecentExpired.id
+          }
+          
+          return true
         })
         
         setPunchCards(filteredCards) 

@@ -48,9 +48,26 @@ export function CardPreviewModal({ isOpen, onClose, card, programId, userId }: C
           
           if (cardsResponse.ok) {
             const cardsData = await cardsResponse.json()
-            const existingCard = cardsData.cards?.find(
-              (c: any) => c.program_id === programId
+            const allCards = cardsData.cards || []
+            
+            // First, try to find an active card for this program
+            let existingCard = allCards.find(
+              (c: any) => c.program_id === programId && c.status !== 'expired'
             )
+            
+            // If no active card, find expired cards for this program
+            if (!existingCard) {
+              const expiredCards = allCards.filter(
+                (c: any) => c.program_id === programId && c.status === 'expired'
+              )
+              
+              // If multiple expired cards, use the most recent one
+              if (expiredCards.length > 0) {
+                existingCard = expiredCards.sort((a: any, b: any) => 
+                  new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+                )[0]
+              }
+            }
             
             if (existingCard) {
               // User HAS a card - use it!
