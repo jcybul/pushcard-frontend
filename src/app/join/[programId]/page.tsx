@@ -163,20 +163,20 @@ export default function JoinProgramPage() {
       </div>
 
       <div className="min-h-screen relative overflow-hidden">
-        <main className="max-w-md mx-auto px-4 py-8 sm:py-16 flex flex-col items-center">
+        <main className="max-w-md mx-auto px-4 py-4 sm:py-6 flex flex-col items-center">
           {/* Logo - Clean without box */}
-          <div className="mb-6">
+          <div className="mb-2">
             {program.merchant_logo_url ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img 
                 src={program.merchant_logo_url} 
                 alt={`${program.merchant_name} logo`} 
-                className="w-28 h-28 object-contain drop-shadow-2xl"
+                className="w-48 h-48 object-contain drop-shadow-2xl"
               />
             ) : (
-              <div className="w-28 h-28 rounded-3xl bg-white/20 backdrop-blur-md shadow-2xl flex items-center justify-center border border-white/30">
+              <div className="w-48 h-48 rounded-3xl bg-white/20 backdrop-blur-md shadow-2xl flex items-center justify-center border border-white/30">
                 <span 
-                  className="text-5xl font-bold drop-shadow-lg"
+                  className="text-7xl font-bold drop-shadow-lg"
                   style={{ color: program.foreground_color || '#ffffff' }}
                 >
                   {program.merchant_name.charAt(0)}
@@ -206,13 +206,13 @@ export default function JoinProgramPage() {
             <div className="flex items-center gap-1 sm:gap-2">
               <div className="flex flex-col items-center gap-1">
                 <div
-                  className="w-7 h-7 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-extrabold bg-white ring-2 sm:ring-4 ring-white/40"
+                  className="w-10 h-10 sm:w-14 sm:h-14 rounded-full flex items-center justify-center text-sm sm:text-base font-extrabold bg-white ring-2 sm:ring-4 ring-white/40"
                   style={{ color: program.foreground_color || '#000000' }}
                 >
                   1
                 </div>
                 <span
-                  className="text-[10px] sm:text-xs font-bold text-center leading-tight max-w-[60px] sm:max-w-none"
+                  className="text-xs sm:text-sm font-bold text-center leading-tight max-w-[60px] sm:max-w-none"
                   style={{ color: program.foreground_color || '#ffffff' }}
                 >
                   Create account
@@ -223,13 +223,13 @@ export default function JoinProgramPage() {
               
               <div className="flex flex-col items-center gap-1">
                 <div
-                  className="w-7 h-7 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-extrabold bg-white/30 backdrop-blur-md border border-white/40"
+                  className="w-10 h-10 sm:w-14 sm:h-14 rounded-full flex items-center justify-center text-sm sm:text-base font-extrabold bg-white/30 backdrop-blur-md border border-white/40"
                   style={{ color: program.foreground_color || '#ffffff', opacity: 0.6 }}
                 >
                   2
                 </div>
                 <span
-                  className="text-[10px] sm:text-xs font-bold text-center leading-tight max-w-[60px] sm:max-w-none"
+                  className="text-xs sm:text-sm font-bold text-center leading-tight max-w-[60px] sm:max-w-none"
                   style={{ color: program.foreground_color || '#ffffff', opacity: 0.5 }}
                 >
                   Add to Wallet
@@ -240,13 +240,13 @@ export default function JoinProgramPage() {
 
               <div className="flex flex-col items-center gap-1">
                 <div
-                  className="w-7 h-7 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-extrabold bg-white/30 backdrop-blur-md border border-white/40"
+                  className="w-10 h-10 sm:w-14 sm:h-14 rounded-full flex items-center justify-center text-sm sm:text-base font-extrabold bg-white/30 backdrop-blur-md border border-white/40"
                   style={{ color: program.foreground_color || '#ffffff', opacity: 0.6 }}
                 >
                   3
                 </div>
                 <span
-                  className="text-[10px] sm:text-xs font-bold text-center leading-tight max-w-[60px] sm:max-w-none"
+                  className="text-xs sm:text-sm font-bold text-center leading-tight max-w-[60px] sm:max-w-none"
                   style={{ color: program.foreground_color || '#ffffff', opacity: 0.5 }}
                 >
                   Collect punches
@@ -257,13 +257,13 @@ export default function JoinProgramPage() {
 
               <div className="flex flex-col items-center gap-1">
                 <div
-                  className="w-7 h-7 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-extrabold bg-white/30 backdrop-blur-md border border-white/40"
+                  className="w-10 h-10 sm:w-14 sm:h-14 rounded-full flex items-center justify-center text-sm sm:text-base font-extrabold bg-white/30 backdrop-blur-md border border-white/40"
                   style={{ color: program.foreground_color || '#ffffff', opacity: 0.6 }}
                 >
                   4
                 </div>
                 <span
-                  className="text-[10px] sm:text-xs font-bold text-center leading-tight max-w-[60px] sm:max-w-none"
+                  className="text-xs sm:text-sm font-bold text-center leading-tight max-w-[60px] sm:max-w-none"
                   style={{ color: program.foreground_color || '#ffffff', opacity: 0.5 }}
                 >
                   Earn rewards
@@ -275,18 +275,6 @@ export default function JoinProgramPage() {
                    {/* Form Card - Glass Morphism */}
                    <div className="w-full rounded-3xl bg-white/95 backdrop-blur-xl shadow-2xl border border-white/20 p-6 sm:p-8 animate-slide-up">
             
-            {/* Header - Only for non-logged-in users */}
-            {!user && (
-              <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-1">
-                  Get Started
-                </h2>
-                <p className="text-gray-600 text-sm">
-                  Join {program.merchant_name} and start earning
-                </p>
-              </div>
-            )}
-
             {/* Signup Form - Only for non-logged-in users */}
             {!user && (
               <form className="space-y-4" onSubmit={handleSignUpInline}>
@@ -307,7 +295,7 @@ export default function JoinProgramPage() {
                       type="text"
                       placeholder="Jose"
                       required
-                      className="w-full h-12 px-4 rounded-xl border-2 border-gray-200 bg-white placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all"
+                      className="w-full h-12 px-4 rounded-xl border-2 border-gray-200 bg-white placeholder-gray-400 text-sm placeholder:text-sm focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all"
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
                     />
@@ -323,7 +311,7 @@ export default function JoinProgramPage() {
                       type="text"
                       placeholder="Gonzales"
                       required
-                      className="w-full h-12 px-4 rounded-xl border-2 border-gray-200 bg-white placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all"
+                      className="w-full h-12 px-4 rounded-xl border-2 border-gray-200 bg-white placeholder-gray-400 text-sm placeholder:text-sm focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all"
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
                     />
@@ -338,9 +326,9 @@ export default function JoinProgramPage() {
                     id="email"
                     name="email"
                     type="email"
-                    placeholder="john@example.com"
+                    placeholder="jose@mail.com"
                     required
-                    className="w-full h-12 px-4 rounded-xl border-2 border-gray-200 bg-white placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all"
+                    className="w-full h-12 px-4 rounded-xl border-2 border-gray-200 bg-white placeholder-gray-400 text-sm placeholder:text-sm focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />
@@ -357,7 +345,7 @@ export default function JoinProgramPage() {
                     placeholder="At least 6 characters"
                     required
                     minLength={6}
-                    className="w-full h-12 px-4 rounded-xl border-2 border-gray-200 bg-white placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all"
+                    className="w-full h-12 px-4 rounded-xl border-2 border-gray-200 bg-white placeholder-gray-400 text-sm placeholder:text-sm focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                   />
