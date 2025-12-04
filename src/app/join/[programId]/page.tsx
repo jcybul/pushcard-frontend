@@ -26,7 +26,8 @@ export default function JoinProgramPage() {
     color1: '#F7F9FB',
     color2: '#EDF2F7',
     color3: '#E2E8F0',
-    color4: '#CBD5E0'
+    color4: '#CBD5E0',
+    darkColor: '#1a202c'
   })
 
   useEffect(() => {
@@ -81,12 +82,21 @@ export default function JoinProgramPage() {
         const newB = Math.floor(b + (255 - b) * percent)
         return `rgb(${newR}, ${newG}, ${newB})`
       }
-  
+      
+      // Generate darker shade for better contrast on white backgrounds
+      const darken = (percent: number) => {
+        const newR = Math.floor(r * (1 - percent))
+        const newG = Math.floor(g * (1 - percent))
+        const newB = Math.floor(b * (1 - percent))
+        return `rgb(${newR}, ${newG}, ${newB})`
+      }
+      
       setGradientColors({
         color1: primaryColor,           // Original: #cf2387
         color2: lighten(0.3),           // 30% lighter
         color3: lighten(0.6),           // 60% lighter  
         color4: lighten(0.8),           // 80% lighter (almost white)
+        darkColor: darken(0.3),         // 30% darker for contrast on white
       })
     }, [program?.brand_color])
 
@@ -192,71 +202,71 @@ export default function JoinProgramPage() {
           </div>
 
           {/* Progress Steps - Mobile Optimized */}
-          <div className="w-full mb-6 flex justify-center">
-            <div className="flex items-center gap-2">
-              <div className="flex flex-col items-center gap-1.5">
+          <div className="w-full mb-6 flex justify-center px-2">
+            <div className="flex items-center gap-1 sm:gap-2">
+              <div className="flex flex-col items-center gap-1">
                 <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-extrabold bg-white ring-4 ring-white/40"
+                  className="w-7 h-7 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-extrabold bg-white ring-2 sm:ring-4 ring-white/40"
                   style={{ color: program.foreground_color || '#000000' }}
                 >
                   1
                 </div>
                 <span
-                  className="text-xs font-bold whitespace-nowrap"
+                  className="text-[10px] sm:text-xs font-bold text-center leading-tight max-w-[60px] sm:max-w-none"
                   style={{ color: program.foreground_color || '#ffffff' }}
                 >
                   Create account
                 </span>
               </div>
               
-              <div className="h-0.5 w-6 rounded-full bg-white/20 mb-4" />
+              <div className="h-0.5 w-3 sm:w-6 rounded-full bg-white/20 mb-4" />
               
-              <div className="flex flex-col items-center gap-1.5">
+              <div className="flex flex-col items-center gap-1">
                 <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-extrabold bg-white/30 backdrop-blur-md border border-white/40"
+                  className="w-7 h-7 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-extrabold bg-white/30 backdrop-blur-md border border-white/40"
                   style={{ color: program.foreground_color || '#ffffff', opacity: 0.6 }}
                 >
                   2
                 </div>
                 <span
-                  className="text-xs font-bold whitespace-nowrap"
+                  className="text-[10px] sm:text-xs font-bold text-center leading-tight max-w-[60px] sm:max-w-none"
                   style={{ color: program.foreground_color || '#ffffff', opacity: 0.5 }}
                 >
                   Add to Wallet
                 </span>
               </div>
 
-              <div className="h-0.5 w-6 rounded-full bg-white/20 mb-4" />
+              <div className="h-0.5 w-3 sm:w-6 rounded-full bg-white/20 mb-4" />
 
-              <div className="flex flex-col items-center gap-1.5">
+              <div className="flex flex-col items-center gap-1">
                 <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-extrabold bg-white/30 backdrop-blur-md border border-white/40"
+                  className="w-7 h-7 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-extrabold bg-white/30 backdrop-blur-md border border-white/40"
                   style={{ color: program.foreground_color || '#ffffff', opacity: 0.6 }}
                 >
                   3
                 </div>
                 <span
-                  className="text-xs font-bold whitespace-nowrap"
+                  className="text-[10px] sm:text-xs font-bold text-center leading-tight max-w-[60px] sm:max-w-none"
                   style={{ color: program.foreground_color || '#ffffff', opacity: 0.5 }}
                 >
-                  Show card
+                  Collect punches
                 </span>
               </div>
 
-              <div className="h-0.5 w-6 rounded-full bg-white/20 mb-4" />
+              <div className="h-0.5 w-3 sm:w-6 rounded-full bg-white/20 mb-4" />
 
-              <div className="flex flex-col items-center gap-1.5">
+              <div className="flex flex-col items-center gap-1">
                 <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-extrabold bg-white/30 backdrop-blur-md border border-white/40"
+                  className="w-7 h-7 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-extrabold bg-white/30 backdrop-blur-md border border-white/40"
                   style={{ color: program.foreground_color || '#ffffff', opacity: 0.6 }}
                 >
                   4
                 </div>
                 <span
-                  className="text-xs font-bold whitespace-nowrap"
+                  className="text-[10px] sm:text-xs font-bold text-center leading-tight max-w-[60px] sm:max-w-none"
                   style={{ color: program.foreground_color || '#ffffff', opacity: 0.5 }}
                 >
-                  Earn punches
+                  Earn rewards
                 </span>
               </div>
             </div>
@@ -406,7 +416,7 @@ export default function JoinProgramPage() {
                   <Link 
                     href={`/login?programId=${program.id}`} 
                     className="font-bold underline decoration-2 underline-offset-2"
-                    style={{ color: gradientColors.color1 }}
+                    style={{ color: gradientColors.darkColor }}
                   >
                     Log in
                   </Link>
